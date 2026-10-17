@@ -58,20 +58,27 @@ run_coverage() {
     cp -f "${COVERAGE_XML}" artifacts/coverage/coverage.xml
     COVERAGE_XML=artifacts/coverage/coverage.xml
   fi
-  # Normalize Cobertura filenames to src/geekbench7_linux/... when needed.
+  # Cobertura paths must be relative to sonar.sources=src/geekbench7_linux
+  # (e.g. cli.py, commands/desktop.py) — not repo-root paths.
   python3 - "${COVERAGE_XML}" <<'PY'
+import re
 import sys
 from pathlib import Path
-import re
+
 path = Path(sys.argv[1])
 text = path.read_text(encoding="utf-8")
+prefix = "src/geekbench7_linux/"
+
+
 def fix(match: re.Match[str]) -> str:
-    name = match.group(1)
-    if name.startswith("src/"):
-        return match.group(0)
-    if name.startswith("geekbench7_linux/"):
-        return f'filename="src/{name}"'
-    return f'filename="src/geekbench7_linux/{name}"'
+    name = match.group(1).replace("\\", "/")
+    if name.startswith(prefix):
+        name = name[len(prefix) :]
+    elif name.startswith("geekbench7_linux/"):
+        name = name[len("geekbench7_linux/") :]
+    return f'filename="{name}"'
+
+
 text = re.sub(r'filename="([^"]+)"', fix, text)
 path.write_text(text, encoding="utf-8")
 PY

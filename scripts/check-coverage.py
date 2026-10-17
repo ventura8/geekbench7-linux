@@ -103,11 +103,15 @@ def _file_score(cls: ET.Element) -> tuple[float, int, int]:
 
 
 def _repo_relative(filename: str) -> str:
-    if "src/geekbench7_linux/" in filename:
-        return filename[filename.index("src/geekbench7_linux/") :]
-    if filename.startswith("geekbench7_linux/"):
-        return "src/" + filename
-    return filename
+    name = filename.replace("\\", "/")
+    if "src/geekbench7_linux/" in name:
+        return name[name.index("src/geekbench7_linux/") :]
+    if name.startswith("geekbench7_linux/"):
+        return "src/" + name
+    # Sonar-oriented Cobertura paths are relative to src/geekbench7_linux/.
+    if name.endswith(".py") and not name.startswith("/"):
+        return f"src/geekbench7_linux/{name}"
+    return name
 
 
 def _load_exclusions(properties: Path) -> list[re.Pattern[str]]:
@@ -126,9 +130,11 @@ def _measure_classes(
     measured = 0
     for cls in root.findall(".//class"):
         filename = cls.attrib.get("filename", "").replace("\\", "/")
-        if not filename.endswith(".py") or "geekbench7_linux" not in filename:
+        if not filename.endswith(".py"):
             continue
         rel = _repo_relative(filename)
+        if "geekbench7_linux" not in rel:
+            continue
         if _excluded(rel, exclusions) or _excluded(filename, exclusions):
             continue
         if "/tests/" in f"/{rel}/":
