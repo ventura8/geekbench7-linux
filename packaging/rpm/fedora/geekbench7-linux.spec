@@ -21,7 +21,7 @@ Linux build from Primate Labs' CDN. Packages never embed Geekbench binaries.
 
 Geekbench is made by Primate Labs (founder John Poole). This package is not
 affiliated with Primate Labs. Please buy a license at
-https://www.geekbench.com/buy/ if you find Geekbench useful.
+https://www.primatelabs.com/store/v7/ if you find Geekbench useful.
 
 # No scriptlets: packages ship code only; per-user state is created at first run.
 

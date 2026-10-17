@@ -5,7 +5,7 @@ version: '1.0.0'
 summary: Unofficial packaging for official Geekbench 7
 description: |
   Downloads and launches official Geekbench 7 from Primate Labs' CDN.
-  Not affiliated with Primate Labs. Buy Geekbench at https://www.geekbench.com/buy/.
+  Not affiliated with Primate Labs. Buy Geekbench at https://www.primatelabs.com/store/v7/.
 grade: stable
 confinement: classic
 license: MIT

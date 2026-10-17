@@ -9,7 +9,7 @@ redistributing it.
 (founder **John Poole**). Thank you for Geekbench.
 
 This project is **not affiliated with, endorsed by, or supported by** Primate Labs.
-Please [buy a Geekbench license](https://www.geekbench.com/buy/) if you find it useful.
+Please [buy a Geekbench license](https://www.primatelabs.com/store/v7/) if you find it useful.
 
 Wrapper issues: https://github.com/ventura8/geekbench7-linux/issues  
 Geekbench itself: contact Primate Labs via https://www.geekbench.com/

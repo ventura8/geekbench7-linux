@@ -12,7 +12,7 @@ from . import APP_NAME
 LINKS: dict[str, str] = {
     "website": "https://www.geekbench.com",
     "primatelabs": "https://www.primatelabs.com",
-    "buy": "https://www.geekbench.com/buy/",
+    "buy": "https://www.primatelabs.com/store/v7/",
     "download": "https://www.geekbench.com/download/linux/",
     "preview": "https://www.geekbench.com/preview/",
     "browser": "https://browser.geekbench.com",
@@ -97,7 +97,7 @@ def render_metainfo_paragraphs() -> list[str]:
         f"{APP_NAME} downloads and launches the official, unmodified Geekbench 7 "
         "Linux build from Primate Labs' CDN, with a menu entry and an update command.",
         f"Geekbench is proprietary software made by {makers_text()} (founder {FOUNDER}). "
-        f"Please buy a license from geekbench.com if you find it useful. {thank_you()}",
+        f"Please buy a license at primatelabs.com/store/v7 if you find it useful. {thank_you()}",
         "This project is not affiliated with, endorsed by or supported by Primate Labs. "
         "It downloads the official tarball from the Geekbench CDN on your machine and never "
         "redistributes or patches Geekbench. Report problems with the wrapper on the "

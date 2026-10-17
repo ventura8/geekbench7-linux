@@ -16,7 +16,7 @@ cross-platform benchmark that makes performance comparable across machines.
 |---|---|
 | Website | https://www.geekbench.com |
 | Primate Labs | https://www.primatelabs.com |
-| Buy / license | https://www.geekbench.com/buy/ |
+| Buy / license | https://www.primatelabs.com/store/v7/ |
 | Geekbench Browser | https://browser.geekbench.com |
 | Linux download | https://www.geekbench.com/download/linux/ |
 | Preview builds (Linux/AArch64, Linux/RISC-V) | https://www.geekbench.com/preview/ |
@@ -24,7 +24,7 @@ cross-platform benchmark that makes performance comparable across machines.
 ### Please support Primate Labs
 
 Geekbench is proprietary software. If you find it useful — on Linux too —
-please [buy a license](https://www.geekbench.com/buy/). It is what keeps
+please [buy a license](https://www.primatelabs.com/store/v7/). It is what keeps
 Geekbench alive.
 
 ### Where to report problems
@@ -40,4 +40,4 @@ Geekbench alive.
 This project downloads the official tarball from `cdn.geekbench.com` on your
 machine and **never redistributes or patches** Geekbench.
 
-Geekbench © Primate Labs (founder John Poole) — https://www.geekbench.com/buy/
+Geekbench © Primate Labs (founder John Poole) — https://www.primatelabs.com/store/v7/
