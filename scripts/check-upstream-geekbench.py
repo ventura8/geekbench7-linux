@@ -7,7 +7,6 @@ import argparse
 import json
 import re
 import sys
-import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -54,7 +53,8 @@ def main() -> int:
     try:
         current = pinned_version()
         latest = fetch_latest()
-    except (OSError, urllib.error.URLError, json.JSONDecodeError, KeyError, RuntimeError) as exc:
+    except (OSError, json.JSONDecodeError, KeyError, RuntimeError) as exc:
+        # URLError is an OSError subclass on Python 3.
         print(f"error: {exc}", file=sys.stderr)
         return 2
     newer = latest != current and _version_key(latest) > _version_key(current)
