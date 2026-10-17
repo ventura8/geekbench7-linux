@@ -1,0 +1,19 @@
+[Desktop Entry]
+Type=Application
+Name=@APP_NAME@
+Comment=@COMMENT@
+Exec=@EXEC@ run
+TryExec=@TRYEXEC@
+Icon=@APP_ID@
+Categories=System;Monitor;
+Terminal=true
+Keywords=benchmark;performance;CPU;GPU;Geekbench;
+Actions=doctor;about;
+
+[Desktop Action doctor]
+Name=Doctor
+Exec=@EXEC@ doctor
+
+[Desktop Action about]
+Name=About
+Exec=@EXEC@ about

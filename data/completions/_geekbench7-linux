@@ -1,0 +1,14 @@
+#compdef geekbench7-linux geekbench7
+
+_arguments \
+  '1:command:(setup run update doctor about uninstall desktop version)' \
+  '*::arg:->args'
+
+case $words[1] in
+  desktop)
+    _arguments '1:action:(install remove)'
+    ;;
+  setup|run)
+    _arguments '--accept-eula' '--json' '--allow-root'
+    ;;
+esac

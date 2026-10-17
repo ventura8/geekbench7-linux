@@ -1,0 +1,9 @@
+geekbench7-linux (1.0.0) unstable; urgency=medium
+
+  * First stable release (1.0.0).
+  * Wrapper-only packaging for official Geekbench 7 (amd64 and arm64).
+  * Downloads from cdn.geekbench.com on the user's machine; never redistributes Geekbench.
+  * SonarQube Cloud support with per-file coverage gate (>= 90%).
+  * Not affiliated with Primate Labs; buy Geekbench at https://www.geekbench.com/buy/.
+
+ -- Sergiu Alexandrescu <alexandrescu.sergiu@gmail.com>  Fri, 17 Oct 2026 18:00:00 +0000

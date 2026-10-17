@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "comment": "Pinned official Geekbench 7 Linux tarballs. Hashes filled by upstream-watch / maintainers after verified download. size 0 means TOFU until first verified fetch records the real size+sha256.",
+  "allowed_hosts": ["cdn.geekbench.com"],
+  "arches": {
+    "amd64": {
+      "version": "7.1.0",
+      "size": 0,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "arm64": {
+      "version": "7.1.0",
+      "size": 0,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  }
+}

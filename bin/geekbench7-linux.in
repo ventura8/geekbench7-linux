@@ -1,0 +1,47 @@
+#!@PYTHON@ -I
+"""geekbench7-linux / geekbench7 launcher: Geekbench 7 for Linux (unofficial).
+
+Relocatable: the ``geekbench7_linux`` package is found relative to this file
+(``<root>/share/geekbench7-linux``). ``GEEKBENCH7_LINUX_LIBDIR`` overrides.
+Only when no installed package exists is a source checkout used.
+"""
+
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+
+def _package_dir(root: Path) -> str:
+    """The directory holding this installation's ``geekbench7_linux`` package."""
+    libdir = os.environ.get("GEEKBENCH7_LINUX_LIBDIR", "")
+    if libdir:
+        return libdir
+    installed = root / "share" / "geekbench7-linux"
+    if (installed / "geekbench7_linux").is_dir():
+        return str(installed)
+    checkout = root / "src"
+    is_checkout = (root / "VERSION").is_file() or (root / "meson.build").is_file()
+    if is_checkout and (checkout / "geekbench7_linux").is_dir():
+        return str(checkout)
+    return str(installed)
+
+
+def _setup_path() -> None:
+    """Put the geekbench7_linux package of this installation first on ``sys.path``."""
+    sys.path.insert(0, _package_dir(Path(__file__).resolve().parent.parent))
+
+
+def _main() -> int:
+    """Run geekbench7-linux (or geekbench7, chosen by the program name)."""
+    if os.geteuid() == 0:
+        sys.dont_write_bytecode = True
+    _setup_path()
+    from geekbench7_linux.cli import main
+
+    return main(prog=sys.argv[0])
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main())

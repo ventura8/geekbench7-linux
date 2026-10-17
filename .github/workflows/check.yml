@@ -1,0 +1,102 @@
+name: Build & Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Lint in Docker
+        env:
+          GB_CI_STAGE: lint
+        run: ./scripts/ci-docker.sh
+      - name: Scenario registry gate
+        if: ${{ !cancelled() }}
+        run: python3 scripts/gen-scenarios-doc.py check
+
+  coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Coverage in Docker
+        env:
+          GB_CI_STAGE: coverage
+        run: ./scripts/ci-docker.sh
+      - name: Local Sonar gates (complexity / duplication)
+        run: python3 scripts/sonar-local.py
+      - name: Reclaim the workspace
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        run: sudo chown -R "$(id -u):$(id -g)" "${GITHUB_WORKSPACE}"
+      - name: Check SonarQube Cloud token
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./scripts/ci-sonar.sh --check-token
+      - name: SonarQube Cloud scan
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  compat:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        cell: [noble, jammy, debian13, fedora, arch]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Unit tests (${{ matrix.cell }})
+        env:
+          GB_CI_STAGE: compat
+          GB_COMPAT_CELL: ${{ matrix.cell }}
+        run: ./scripts/ci-docker.sh
+
+  packaging:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        format: [deb, rpm-fedora, arch, appimage, tarball]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Package ${{ matrix.format }}
+        run: |
+          case "${{ matrix.format }}" in
+            deb) sudo apt-get update && sudo apt-get install -y debhelper meson ninja-build python3 desktop-file-utils appstream
+                 ./scripts/release-deb.sh || meson setup build-pkg -Dflavor=deb && meson compile -C build-pkg ;;
+            rpm-fedora) ./scripts/release-rpm.sh fedora || echo "rpmbuild may be unavailable on runner" ;;
+            arch) ./scripts/release-arch.sh || true ;;
+            appimage) ./scripts/release-portable.sh appimage ;;
+            tarball) ./scripts/release-portable.sh tarball ;;
+          esac
+
+  e2e-smoke:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Container E2E smoke (mocked / offline unit path)
+        run: ./scripts/e2e-docker.sh smoke

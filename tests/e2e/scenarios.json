@@ -1,0 +1,11 @@
+{
+  "scenarios": [
+    {"id": "E1", "title": "First-run setup downloads correct arch tarball", "gate": "GB_E2E_GEEKBENCH=1"},
+    {"id": "E2", "title": "Update refreshes pinned Geekbench version", "gate": "GB_E2E_GEEKBENCH=1"},
+    {"id": "E3", "title": "Passthrough args reach official binary", "gate": "GB_E2E_GEEKBENCH=1"},
+    {"id": "E4", "title": "Uninstall clears XDG Geekbench state only", "gate": "GB_E2E_SMOKE=1"},
+    {"id": "E5", "title": "Doctor reports arch paths and hash", "gate": "GB_E2E_SMOKE=1"},
+    {"id": "E6", "title": "Package smoke has wrapper and no embedded Geekbench", "gate": "GB_E2E_SMOKE=1"},
+    {"id": "E7", "title": "N-1 to N wrapper upgrade keeps user Geekbench install", "gate": "GB_E2E_SMOKE=1"}
+  ]
+}

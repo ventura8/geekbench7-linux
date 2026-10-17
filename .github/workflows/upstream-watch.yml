@@ -1,0 +1,33 @@
+name: Upstream watch (Geekbench)
+
+on:
+  schedule:
+    - cron: "41 5 * * 3"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for new Geekbench version
+        id: check
+        run: |
+          python3 scripts/check-upstream-geekbench.py --github-output >> "$GITHUB_OUTPUT"
+      - name: Open tracking issue when new
+        if: steps.check.outputs.new == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = '${{ steps.check.outputs.version }}';
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Upstream Geekbench ${version} available`,
+              body: `Detected Geekbench ${version} on the download page.\n\nNext steps:\n1. Download amd64 + arm64 tarballs from cdn.geekbench.com\n2. Record size+sha256 in runtime-manifest.json\n3. Run container E2E\n4. Open a pin PR\n\nDo not commit Geekbench binaries.`,
+            });
