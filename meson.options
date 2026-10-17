@@ -1,0 +1,26 @@
+# meson.options - build options of Geekbench 7 for Linux (unofficial).
+# meson_options.txt is a symlink to this file for meson < 1.1 (Ubuntu 22.04 ships 0.61).
+option(
+  'python',
+  type: 'string',
+  value: '',
+  description: 'Interpreter for the launcher shebang (default: python3 found at configure time)',
+)
+option(
+  'flavor',
+  type: 'string',
+  value: 'meson',
+  description: 'Packaging flavour baked into geekbench7_linux/_build.py (deb, rpm, arch, tarball, appimage, flatpak, snap)',
+)
+option(
+  'geekbench_alias',
+  type: 'boolean',
+  value: true,
+  description: 'Install the "geekbench7" command (a symlink to geekbench7-linux; argv[0] dispatch)',
+)
+option(
+  'desktop',
+  type: 'boolean',
+  value: true,
+  description: 'Install the menu entry, AppStream metainfo and icons',
+)

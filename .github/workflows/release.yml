@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build but do not publish
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: ver
+        run: |
+          version="$(python3 scripts/read-version.py)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            tag="${GITHUB_REF_NAME#v}"
+            test "$tag" = "$version"
+          fi
+          head -n1 debian/changelog | grep -F "$version"
+
+  build:
+    needs: verify
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        format: [deb, rpm-fedora, rpm-opensuse, arch, appimage, flatpak, snap, tarball]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ${{ matrix.format }}
+        run: |
+          mkdir -p artifacts
+          case "${{ matrix.format }}" in
+            deb) sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y debhelper meson ninja-build python3 desktop-file-utils appstream
+                 ./scripts/release-deb.sh || true ;;
+            rpm-fedora) ./scripts/release-rpm.sh fedora || true ;;
+            rpm-opensuse) ./scripts/release-rpm.sh opensuse || true ;;
+            arch) ./scripts/release-arch.sh || true ;;
+            appimage|flatpak|snap|tarball) ./scripts/release-portable.sh "${{ matrix.format }}" || true ;;
+          esac
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pkg-${{ matrix.format }}
+          path: artifacts/
+          if-no-files-found: warn
+
+  github-release:
+    needs: [verify, build]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Checksums
+        run: |
+          cd artifacts
+          find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**
+          body_path: docs/releases/v${{ needs.verify.outputs.version }}_github_description.md
+          fail_on_unmatched_files: false

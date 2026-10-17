@@ -1,0 +1,48 @@
+.TH GEEKBENCH7-LINUX 1 "October 2026" "geekbench7-linux" "User Commands"
+.SH NAME
+geekbench7-linux \- unofficial packaging for official Geekbench 7 on Linux
+.SH SYNOPSIS
+.B geekbench7-linux
+[\fIOPTIONS\fR]
+.I COMMAND
+...
+.SH DESCRIPTION
+.B geekbench7-linux
+downloads and launches the official, unmodified Geekbench 7 Linux build from
+Primate Labs' CDN. It never redistributes or patches Geekbench.
+.PP
+Geekbench is made by Primate Labs (founder John Poole). This project is not
+affiliated with Primate Labs. Please buy a license at
+https://www.geekbench.com/buy/ if you find Geekbench useful.
+.SH COMMANDS
+.TP
+.B setup
+Download and extract Geekbench 7 (requires
+.B --accept-eula
+on first run).
+.TP
+.B run
+Run the official
+.B geekbench7
+binary (default for the
+.B geekbench7
+alias).
+.TP
+.B update
+Refresh the pinned Geekbench version from the CDN.
+.TP
+.B doctor
+Report install paths, arch and status.
+.TP
+.B about
+Credits, thanks and disclaimer.
+.TP
+.B uninstall
+Remove per-user Geekbench state (keeps the system package).
+.TP
+.B desktop install|remove
+Install or remove a per-user menu entry.
+.SH SEE ALSO
+https://www.geekbench.com/
+.br
+https://github.com/ventura8/geekbench7-linux

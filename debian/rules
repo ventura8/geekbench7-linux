@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+export DH_VERBOSE = 1
+export PYTHONDONTWRITEBYTECODE = 1
+
+%:
+	dh $@ --buildsystem=meson
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-Dflavor=deb \
+		-Dpython=/usr/bin/python3 \
+		-Dgeekbench_alias=true

@@ -1,0 +1,21 @@
+# Flatpak manifest — wrapper only; Geekbench downloaded at runtime into XDG dirs.
+app-id: io.github.ventura8.Geekbench7Linux
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: geekbench7-linux
+finish-args:
+  - --share=network
+  - --filesystem=xdg-data
+  - --filesystem=xdg-cache
+  - --filesystem=xdg-config
+modules:
+  - name: geekbench7-linux
+    buildsystem: meson
+    config-opts:
+      - -Dflavor=flatpak
+      - -Dpython=/usr/bin/python3
+      - -Dgeekbench_alias=true
+    sources:
+      - type: dir
+        path: ../..

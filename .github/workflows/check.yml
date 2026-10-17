@@ -1,0 +1,114 @@
+name: Build & Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Lint in Docker
+        env:
+          GB_CI_STAGE: lint
+        run: ./scripts/ci-docker.sh
+      - name: Scenario registry gate
+        if: ${{ !cancelled() }}
+        run: python3 scripts/gen-scenarios-doc.py check
+
+  coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Coverage in Docker
+        env:
+          GB_CI_STAGE: coverage
+        run: ./scripts/ci-docker.sh
+      - name: Local Sonar gates (complexity / duplication)
+        run: python3 scripts/sonar-local.py
+      - name: Reclaim the workspace
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        run: sudo chown -R "$(id -u):$(id -g)" "${GITHUB_WORKSPACE}"
+      - name: Check SonarQube Cloud token
+        id: sonar_token
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [[ -z "${SONAR_TOKEN}" ]]; then
+            echo "SONAR_TOKEN not configured; skipping Sonar Cloud upload (local gates still ran)."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          ./scripts/ci-sonar.sh --check-token
+          echo "configured=true" >> "$GITHUB_OUTPUT"
+      - name: SonarQube Cloud scan
+        if: |
+          (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+          && steps.sonar_token.outputs.configured == 'true'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        uses: SonarSource/sonarqube-scan-action@v5
+
+  compat:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        cell: [noble, jammy, debian13, fedora, arch]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Unit tests (${{ matrix.cell }})
+        env:
+          GB_CI_STAGE: compat
+          GB_COMPAT_CELL: ${{ matrix.cell }}
+        run: ./scripts/ci-docker.sh
+
+  packaging:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        format: [deb, rpm-fedora, arch, appimage, tarball]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Package ${{ matrix.format }}
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y meson ninja-build python3 desktop-file-utils appstream
+          case "${{ matrix.format }}" in
+            deb) sudo DEBIAN_FRONTEND=noninteractive apt-get install -y debhelper
+                 ./scripts/release-deb.sh || meson setup build-pkg -Dflavor=deb && meson compile -C build-pkg ;;
+            rpm-fedora) ./scripts/release-rpm.sh fedora || echo "rpmbuild may be unavailable on runner" ;;
+            arch) ./scripts/release-arch.sh || true ;;
+            appimage) ./scripts/release-portable.sh appimage || true ;;
+            tarball) ./scripts/release-portable.sh tarball ;;
+          esac
+
+  e2e-smoke:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Container E2E smoke (mocked / offline unit path)
+        run: ./scripts/e2e-docker.sh smoke

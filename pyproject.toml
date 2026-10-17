@@ -1,0 +1,21 @@
+# Tool configuration only. geekbench7-linux is not a pip package:
+# no [build-system], no [project] (Meson installs it; VERSION is the version).
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.coverage.run]
+branch = true
+source = ["src/geekbench7_linux"]
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+extend-exclude = ["build", "build-*", "builddir*", "obj-*", "artifacts", "logs", ".cache"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP"]

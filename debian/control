@@ -1,0 +1,28 @@
+Source: geekbench7-linux
+Section: utils
+Priority: optional
+Maintainer: Sergiu Alexandrescu <alexandrescu.sergiu@gmail.com>
+Build-Depends: debhelper-compat (= 13),
+               meson (>= 0.61),
+               ninja-build,
+               python3 (>= 3.10),
+               desktop-file-utils,
+               appstream
+Standards-Version: 4.7.0
+Homepage: https://github.com/ventura8/geekbench7-linux
+Vcs-Git: https://github.com/ventura8/geekbench7-linux.git
+Vcs-Browser: https://github.com/ventura8/geekbench7-linux
+
+Package: geekbench7-linux
+Architecture: amd64 arm64
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         python3 (>= 3.10),
+         curl | wget
+Description: Unofficial packaging for official Geekbench 7 on Linux
+ geekbench7-linux downloads and launches the official, unmodified Geekbench 7
+ Linux build from Primate Labs' CDN. Packages never embed Geekbench binaries.
+ .
+ Geekbench is made by Primate Labs (founder John Poole). This package is not
+ affiliated with Primate Labs. Please buy a license at
+ https://www.geekbench.com/buy/ if you find Geekbench useful.

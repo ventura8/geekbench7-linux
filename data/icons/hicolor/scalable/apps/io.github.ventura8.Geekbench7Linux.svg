@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Geekbench 7 for Linux">
+  <rect width="128" height="128" rx="24" fill="#1b2838"/>
+  <rect x="24" y="40" width="80" height="48" rx="8" fill="#3d9a6a"/>
+  <rect x="36" y="52" width="12" height="24" rx="2" fill="#1b2838"/>
+  <rect x="58" y="48" width="12" height="32" rx="2" fill="#1b2838"/>
+  <rect x="80" y="56" width="12" height="16" rx="2" fill="#1b2838"/>
+</svg>
