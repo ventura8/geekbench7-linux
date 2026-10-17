@@ -38,11 +38,15 @@ build_tarball() {
 }
 
 build_appimage() {
-  echo "==> AppImage"
+  local out="${GB_ARTIFACTS_DIR}/geekbench7-linux-${VERSION}-${ARCH}.AppImage"
+  echo "==> AppImage ${out}"
   APPIMAGETOOL="${APPIMAGETOOL:-/usr/local/bin/appimagetool}" \
     packaging/appimage/build-appimage.sh
-  gb_collect_artifacts_glob \
-    "${GB_ARTIFACTS_DIR}/geekbench7-linux-${VERSION}-${ARCH}.AppImage"
+  [[ -f "${out}" ]] || {
+    echo "error: expected ${out}" >&2
+    exit 1
+  }
+  ls -la "${out}"
 }
 
 build_flatpak() {

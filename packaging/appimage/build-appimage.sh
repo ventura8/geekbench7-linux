@@ -13,14 +13,14 @@ meson setup "$STAGE/build" --prefix=/usr --buildtype=release \
 meson compile -C "$STAGE/build"
 DESTDIR="$STAGE/AppDir" meson install -C "$STAGE/build" --no-rebuild
 install -Dm755 "$ROOT/packaging/appimage/AppRun" "$STAGE/AppDir/AppRun"
-# Desktop + icon at AppDir root for appimagetool.
-if [[ -f "$STAGE/AppDir/usr/share/applications/io.github.ventura8.Geekbench7Linux.desktop" ]]; then
-  cp "$STAGE/AppDir/usr/share/applications/io.github.ventura8.Geekbench7Linux.desktop" \
-    "$STAGE/AppDir/geekbench7-linux.desktop"
-fi
+# Desktop + icon at AppDir root for appimagetool (Icon= name must match file stem).
+DESKTOP_SRC="$STAGE/AppDir/usr/share/applications/io.github.ventura8.Geekbench7Linux.desktop"
 ICON_SRC="$STAGE/AppDir/usr/share/icons/hicolor/scalable/apps/io.github.ventura8.Geekbench7Linux.svg"
+if [[ -f "$DESKTOP_SRC" ]]; then
+  cp "$DESKTOP_SRC" "$STAGE/AppDir/io.github.ventura8.Geekbench7Linux.desktop"
+fi
 if [[ -f "$ICON_SRC" ]]; then
-  cp "$ICON_SRC" "$STAGE/AppDir/geekbench7-linux.svg"
+  cp "$ICON_SRC" "$STAGE/AppDir/io.github.ventura8.Geekbench7Linux.svg"
 fi
 
 NAME="geekbench7-linux-${VERSION}-${ARCH}.AppImage"
@@ -35,7 +35,8 @@ if command -v "${APPIMAGETOOL}" >/dev/null 2>&1 || [[ -x "${APPIMAGETOOL}" ]]; t
   done
   UPDATE_INFO="gh-releases-zsync|ventura8|geekbench7-linux|latest|geekbench7-linux-*-${ARCH}.AppImage.zsync"
   export UPDATE_INFORMATION="$UPDATE_INFO"
-  "${APPIMAGETOOL}" "${RUNTIME_ARGS[@]}" "$STAGE/AppDir" "$OUT_DIR/$NAME"
+  # Pure-script AppDir has no ELF for arch detection — set ARCH explicitly.
+  ARCH="${ARCH}" "${APPIMAGETOOL}" "${RUNTIME_ARGS[@]}" "$STAGE/AppDir" "$OUT_DIR/$NAME"
   ls -la "$OUT_DIR/$NAME"
 else
   echo "error: appimagetool not found" >&2

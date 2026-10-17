@@ -31,12 +31,20 @@ if [[ "${DISTRO}" == "opensuse" ]]; then
   DIST_ARGS=(-D "dist .lp160")
 fi
 
+# Optional cross-target (e.g. GB_RPM_TARGET=riscv64 on an amd64 builder when no
+# native riscv64 Fedora/openSUSE container image exists).
+TARGET_ARGS=()
+if [[ -n "${GB_RPM_TARGET:-}" ]]; then
+  TARGET_ARGS=(--target "${GB_RPM_TARGET}")
+fi
+
 rpmbuild -ba "${RPMTOP}/SPECS/geekbench7-linux.spec" \
   -D "gb_version ${VERSION}" \
   -D "_topdir ${RPMTOP}" \
-  "${DIST_ARGS[@]}"
+  "${DIST_ARGS[@]}" \
+  "${TARGET_ARGS[@]}"
 
-mapfile -t rpms < <(find "${RPMTOP}/RPMS" -name "geekbench7-linux-${VERSION}-*.rpm" -type f ! -name '*.src.rpm')
+mapfile -t rpms < <(find "${RPMTOP}/RPMS" -name "geekbench7-linux-${VERSION}-*.rpm" -type f ! -name '*debug*' ! -name '*.src.rpm')
 if ((${#rpms[@]} == 0)); then
   echo "error: no RPM produced for ${VERSION}" >&2
   find "${RPMTOP}/RPMS" -type f >&2 || true

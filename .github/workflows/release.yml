@@ -45,99 +45,34 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # amd64 (native)
-          - format: deb
-            runner: ubuntu-24.04
-            platform: linux/amd64
-            arch: amd64
-          - format: rpm-fedora
-            runner: ubuntu-24.04
-            platform: linux/amd64
-            arch: amd64
-          - format: rpm-opensuse
-            runner: ubuntu-24.04
-            platform: linux/amd64
-            arch: amd64
-          - format: arch
-            runner: ubuntu-24.04
-            platform: linux/amd64
-            arch: amd64
-          - format: appimage
-            runner: ubuntu-24.04
-            platform: linux/amd64
-            arch: amd64
-          - format: flatpak
-            runner: ubuntu-24.04
-            platform: linux/amd64
-            arch: amd64
-          - format: snap
-            runner: ubuntu-24.04
-            platform: linux/amd64
-            arch: amd64
-          - format: tarball
-            runner: ubuntu-24.04
-            platform: linux/amd64
-            arch: amd64
-          # arm64 (native ARM runners)
-          - format: deb
-            runner: ubuntu-24.04-arm
-            platform: linux/arm64
-            arch: arm64
-          - format: rpm-fedora
-            runner: ubuntu-24.04-arm
-            platform: linux/arm64
-            arch: arm64
-          - format: rpm-opensuse
-            runner: ubuntu-24.04-arm
-            platform: linux/arm64
-            arch: arm64
-          - format: arch
-            runner: ubuntu-24.04-arm
-            platform: linux/arm64
-            arch: arm64
-          - format: appimage
-            runner: ubuntu-24.04-arm
-            platform: linux/arm64
-            arch: arm64
-          - format: flatpak
-            runner: ubuntu-24.04-arm
-            platform: linux/arm64
-            arch: arm64
-          - format: snap
-            runner: ubuntu-24.04-arm
-            platform: linux/arm64
-            arch: arm64
-          - format: tarball
-            runner: ubuntu-24.04-arm
-            platform: linux/arm64
-            arch: arm64
-          # riscv64 (QEMU on amd64 — no hosted riscv runners yet)
-          - format: deb
-            runner: ubuntu-24.04
-            platform: linux/riscv64
-            arch: riscv64
-            qemu: true
-          - format: rpm-fedora
-            runner: ubuntu-24.04
-            platform: linux/riscv64
-            arch: riscv64
-            qemu: true
-          - format: rpm-opensuse
-            runner: ubuntu-24.04
-            platform: linux/riscv64
-            arch: riscv64
-            qemu: true
-          - format: tarball
-            runner: ubuntu-24.04
-            platform: linux/riscv64
-            arch: riscv64
-            qemu: true
+          # --- amd64 (native) ---
+          - { format: deb, runner: ubuntu-24.04, platform: linux/amd64, arch: amd64 }
+          - { format: rpm-fedora, runner: ubuntu-24.04, platform: linux/amd64, arch: amd64 }
+          - { format: rpm-opensuse, runner: ubuntu-24.04, platform: linux/amd64, arch: amd64 }
+          - { format: arch, runner: ubuntu-24.04, platform: linux/amd64, arch: amd64 }
+          - { format: appimage, runner: ubuntu-24.04, platform: linux/amd64, arch: amd64 }
+          - { format: flatpak, runner: ubuntu-24.04, platform: linux/amd64, arch: amd64 }
+          - { format: snap, runner: ubuntu-24.04, platform: linux/amd64, arch: amd64 }
+          - { format: tarball, runner: ubuntu-24.04, platform: linux/amd64, arch: amd64 }
+          # --- arm64 (native ARM runners) ---
+          - { format: deb, runner: ubuntu-24.04-arm, platform: linux/arm64, arch: arm64 }
+          - { format: rpm-fedora, runner: ubuntu-24.04-arm, platform: linux/arm64, arch: arm64 }
+          - { format: rpm-opensuse, runner: ubuntu-24.04-arm, platform: linux/arm64, arch: arm64 }
+          - { format: appimage, runner: ubuntu-24.04-arm, platform: linux/arm64, arch: arm64 }
+          - { format: flatpak, runner: ubuntu-24.04-arm, platform: linux/arm64, arch: arm64 }
+          - { format: snap, runner: ubuntu-24.04-arm, platform: linux/arm64, arch: arm64 }
+          - { format: tarball, runner: ubuntu-24.04-arm, platform: linux/arm64, arch: arm64 }
+          # --- riscv64: deb/tarball via QEMU; RPMs cross-targeted on amd64 (no riscv Fedora/Leap images) ---
+          - { format: deb, runner: ubuntu-24.04, platform: linux/riscv64, arch: riscv64, qemu: true }
+          - { format: tarball, runner: ubuntu-24.04, platform: linux/riscv64, arch: riscv64, qemu: true }
+          - { format: rpm-fedora, runner: ubuntu-24.04, platform: linux/amd64, arch: riscv64, rpm_target: riscv64 }
+          - { format: rpm-opensuse, runner: ubuntu-24.04, platform: linux/amd64, arch: riscv64, rpm_target: riscv64 }
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Set up QEMU (riscv64 / cross)
+      - name: Set up QEMU (riscv64)
         if: matrix.qemu
         uses: docker/setup-qemu-action@v3
         with:
@@ -148,6 +83,7 @@ jobs:
       - name: Packaging cell ${{ matrix.format }} (${{ matrix.arch }})
         env:
           GB_DOCKER_PLATFORM: ${{ matrix.platform }}
+          GB_RPM_TARGET: ${{ matrix.rpm_target || '' }}
           GB_ARTIFACTS_DIR: ${{ github.workspace }}/artifacts
         run: ./scripts/ci-packaging-cell.sh "${{ matrix.format }}"
       - uses: actions/upload-artifact@v4

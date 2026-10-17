@@ -21,7 +21,7 @@ the official [preview builds](https://www.geekbench.com/preview/).
 | deb | amd64, arm64, riscv64 | |
 | rpm (Fedora) | x86_64, aarch64, riscv64 | |
 | rpm (openSUSE) | x86_64, aarch64, riscv64 | |
-| Arch | x86_64, aarch64, riscv64 | PKGBUILD |
+| Arch | x86_64 (CI); aarch64/riscv64 via PKGBUILD | official `archlinux` image is amd64-only |
 | AppImage | x86_64, aarch64 | appimagetool availability |
 | Flatpak | x86_64, aarch64 | |
 | snap | amd64, arm64 | classic |

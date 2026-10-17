@@ -82,6 +82,12 @@ gb_collect_artifacts_glob() {
   for pattern in "$@"; do
     for match in ${pattern}; do
       [[ -e "${match}" ]] || continue
+      # Already in the artifacts dir (same path) — count as collected.
+      if [[ "$(cd "$(dirname "${match}")" && pwd -P)/$(basename "${match}")" == \
+        "$(cd "${GB_ARTIFACTS_DIR}" && pwd -P)/$(basename "${match}")" ]]; then
+        copied=1
+        continue
+      fi
       cp -a "${match}" "${GB_ARTIFACTS_DIR}/"
       copied=1
     done

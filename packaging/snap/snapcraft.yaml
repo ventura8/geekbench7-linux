@@ -1,4 +1,5 @@
 name: geekbench7-linux
+title: Geekbench 7 for Linux (unofficial)
 base: core24
 version: '1.0.0'
 summary: Unofficial packaging for official Geekbench 7
@@ -7,6 +8,11 @@ description: |
   Not affiliated with Primate Labs. Buy Geekbench at https://www.geekbench.com/buy/.
 grade: stable
 confinement: classic
+license: MIT
+website: https://github.com/ventura8/geekbench7-linux
+source-code: https://github.com/ventura8/geekbench7-linux
+issues: https://github.com/ventura8/geekbench7-linux/issues
+contact: alexandrescu.sergiu@gmail.com
 
 apps:
   geekbench7-linux:
@@ -19,6 +25,7 @@ parts:
     plugin: meson
     source: geekbench7-linux-src.tar.gz
     meson-parameters:
+      - --prefix=/usr
       - -Dflavor=snap
       - -Dpython=/usr/bin/python3
       - -Dgeekbench_alias=true
@@ -26,5 +33,10 @@ parts:
       - python3
       - meson
       - ninja-build
+      - desktop-file-utils
+      - appstream
     stage-packages:
       - python3
+    organize:
+      usr/bin/: bin/
+      usr/share/: share/
