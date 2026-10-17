@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from xml.sax.saxutils import escape as xml_escape
@@ -20,13 +21,18 @@ def _import_package() -> None:
 def _resolve_under_allowed(path_arg: str) -> Path:
     """Resolve a CLI path; refuse writes/reads outside the repo or cwd (build dirs)."""
     candidate = Path(path_arg).expanduser()
+    if ".." in Path(path_arg).parts:
+        raise SystemExit(f"refusing path with parent segments: {path_arg!r}")
     if not candidate.is_absolute():
         candidate = Path.cwd() / candidate
     resolved = candidate.resolve()
-    allowed_roots = (ROOT.resolve(), Path.cwd().resolve())
-    if not any(resolved == root or root in resolved.parents for root in allowed_roots):
-        raise SystemExit(f"refusing path outside allowed roots: {resolved}")
-    return resolved
+    resolved_text = str(resolved)
+    for root in (ROOT.resolve(), Path.cwd().resolve()):
+        root_text = str(root)
+        if resolved_text == root_text or resolved_text.startswith(root_text + os.sep):
+            # Rebuild from the validated string so taint analysis treats it as clean.
+            return Path(resolved_text)
+    raise SystemExit(f"refusing path outside allowed roots: {resolved}")
 
 
 def cmd_name(args: argparse.Namespace) -> int:

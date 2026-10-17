@@ -28,6 +28,8 @@ mkdir -p \
 # Match host UID so scratch files are removable without sudo.
 HOST_UID="$(id -u)"
 HOST_GID="$(id -g)"
+mkdir -p "$ROOT/artifacts/coverage" "$SCRATCH/artifacts-coverage"
+# Writable bind over the RO /src tree so Cobertura lands in-repo for Sonar.
 docker run --rm \
   --user "${HOST_UID}:${HOST_GID}" \
   -e HOME=/scratch/home \
@@ -35,17 +37,19 @@ docker run --rm \
   -e PYTHONPYCACHEPREFIX=/scratch/pycache \
   -e PYTHONDONTWRITEBYTECODE=1 \
   -e GB_BUILD_DIR=/scratch/build \
-  -e GB_COVERAGE_XML=/scratch/coverage/coverage.xml \
+  -e GB_COVERAGE_XML=/src/artifacts/coverage/coverage.xml \
   -e COVERAGE_FILE=/scratch/coverage/.coverage \
   -e RUFF_CACHE_DIR=/scratch/ruff \
   -e PYTEST_ADDOPTS="-o cache_dir=/scratch/pytest" \
   -v "$ROOT:/src:ro" \
   -v "$SCRATCH:/scratch" \
+  -v "$SCRATCH/artifacts-coverage:/src/artifacts/coverage" \
   -w /src \
   "$IMAGE_TAG" \
   /src/scripts/ci-inside.sh
 # Copy coverage report back for Sonar / local gates when present.
-if [[ -f "$SCRATCH/coverage/coverage.xml" ]]; then
-  mkdir -p "$ROOT/artifacts/coverage"
+if [[ -f "$SCRATCH/artifacts-coverage/coverage.xml" ]]; then
+  cp -f "$SCRATCH/artifacts-coverage/coverage.xml" "$ROOT/artifacts/coverage/coverage.xml"
+elif [[ -f "$SCRATCH/coverage/coverage.xml" ]]; then
   cp -f "$SCRATCH/coverage/coverage.xml" "$ROOT/artifacts/coverage/coverage.xml"
 fi

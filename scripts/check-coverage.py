@@ -144,15 +144,14 @@ def _measure_classes(
     return failed, total_covered, total_units, measured
 
 
-def _resolve_cli_path(path: Path, *allowed_roots: Path) -> Path:
-    """Refuse CLI paths that escape the repo or an explicit allowlisted root (e.g. /tmp)."""
+def _resolve_under_repo(path: Path) -> Path:
+    """Refuse CLI paths that escape the repository root."""
     resolved = path.expanduser().resolve()
-    for root in allowed_roots:
-        root_res = root.resolve()
-        if resolved == root_res or root_res in resolved.parents:
-            return resolved
-    print(f"error: refusing path outside allowed roots: {resolved}", file=sys.stderr)
-    raise SystemExit(2)
+    root = ROOT.resolve()
+    if resolved != root and root not in resolved.parents:
+        print(f"error: refusing path outside repository: {resolved}", file=sys.stderr)
+        raise SystemExit(2)
+    return resolved
 
 
 def main() -> int:
@@ -164,9 +163,8 @@ def main() -> int:
     parser.add_argument("--min-python-branch", type=float, default=90.0)
     args = parser.parse_args()
 
-    # CI writes Cobertura under /scratch or /tmp when /src is mounted read-only.
-    xml_path = _resolve_cli_path(args.xml, ROOT, Path("/tmp"), Path("/scratch"))
-    props_path = _resolve_cli_path(args.properties, ROOT)
+    xml_path = _resolve_under_repo(args.xml)
+    props_path = _resolve_under_repo(args.properties)
     if not xml_path.is_file():
         print(f"error: missing coverage xml: {xml_path}", file=sys.stderr)
         return 2

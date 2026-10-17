@@ -47,7 +47,11 @@ RUN set -euo pipefail; \
     curl -fsSL --proto '=https' -o /tmp/appimagetool.AppImage \
       "https://github.com/AppImage/appimagetool/releases/download/${APPIMAGETOOL_VERSION}/appimagetool-${AI_ARCH}.AppImage"; \
     echo "${AI_SHA}  /tmp/appimagetool.AppImage" | sha256sum -c -; \
-    offset="$(python3 -c 'import struct; h=open("/tmp/appimagetool.AppImage","rb").read(64); o,=struct.unpack_from("<Q",h,0x28); e,n=struct.unpack_from("<HH",h,0x3a); print(o+e*n)')"; \
+    offset="$(python3 -c 'import struct;\
+h=open("/tmp/appimagetool.AppImage","rb").read(64);\
+o,=struct.unpack_from("<Q",h,0x28);\
+e,n=struct.unpack_from("<HH",h,0x3a);\
+print(o+e*n)')"; \
     unsquashfs -q -o "${offset}" -d /opt/appimagetool /tmp/appimagetool.AppImage; \
     ln -s /opt/appimagetool/AppRun /usr/local/bin/appimagetool; \
     rm -f /tmp/appimagetool.AppImage; \
