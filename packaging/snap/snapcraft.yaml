@@ -16,9 +16,9 @@ contact: alexandrescu.sergiu@gmail.com
 
 apps:
   geekbench7-linux:
-    command: bin/geekbench7-linux
+    command: usr/bin/geekbench7-linux
   geekbench7:
-    command: bin/geekbench7-linux
+    command: usr/bin/geekbench7-linux
 
 parts:
   geekbench7-linux:
@@ -37,6 +37,3 @@ parts:
       - appstream
     stage-packages:
       - python3
-    organize:
-      usr/bin/: bin/
-      usr/share/: share/

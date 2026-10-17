@@ -81,12 +81,15 @@ jobs:
         if: matrix.qemu
         uses: docker/setup-buildx-action@v3
       - name: Packaging cell ${{ matrix.format }} (${{ matrix.arch }})
+        id: pkg
+        continue-on-error: ${{ matrix.format == 'snap' }}
         env:
           GB_DOCKER_PLATFORM: ${{ matrix.platform }}
           GB_RPM_TARGET: ${{ matrix.rpm_target || '' }}
           GB_ARTIFACTS_DIR: ${{ github.workspace }}/artifacts
         run: ./scripts/ci-packaging-cell.sh "${{ matrix.format }}"
       - uses: actions/upload-artifact@v4
+        if: steps.pkg.outcome == 'success'
         with:
           name: release-${{ matrix.format }}-${{ matrix.arch }}
           path: |
@@ -105,7 +108,12 @@ jobs:
 
   github-release:
     needs: [verify, build]
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    # Publish whatever packaging cells succeeded (matrix fail-fast is false).
+    if: |
+      always()
+      && needs.verify.result == 'success'
+      && github.event_name == 'push'
+      && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-24.04
     permissions:
       contents: write
