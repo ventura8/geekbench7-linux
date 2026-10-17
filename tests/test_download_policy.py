@@ -50,12 +50,10 @@ def test_redirect_downgrade() -> None:
 def test_https_to_http_blocked_in_download(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     # Unit-level redirect handler already covered; ensure loopback http without env fails.
     monkeypatch.delenv(LOOPBACK_ENV, raising=False)
+    url = "http://127.0.0.1:9/x"
+    dest = tmp_path / "x"
+    tofu_sha = "0" * 64
+    hosts = ["127.0.0.1"]
+    policy = Policy(allow_loopback_http=True)
     with pytest.raises(IntegrityFailed):
-        download_file(
-            "http://127.0.0.1:9/x",
-            tmp_path / "x",
-            expected_size=0,
-            expected_sha256="0" * 64,
-            allowed_hosts=["127.0.0.1"],
-            policy=Policy(allow_loopback_http=True),
-        )
+        download_file(url, dest, expected_size=0, expected_sha256=tofu_sha, allowed_hosts=hosts, policy=policy)

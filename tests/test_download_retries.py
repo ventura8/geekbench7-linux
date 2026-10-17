@@ -35,7 +35,7 @@ class _FlakyHandler(http.server.BaseHTTPRequestHandler):
 
 
 def test_retry_then_success(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    _FlakyHandler.hits = 0
+    monkeypatch.setattr(_FlakyHandler, "hits", 0)
     server = http.server.HTTPServer(("127.0.0.1", 0), _FlakyHandler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     monkeypatch.setenv(LOOPBACK_ENV, "1")
@@ -57,15 +57,13 @@ def test_retry_then_success(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> 
 
 def test_loopback_policy_requires_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv(LOOPBACK_ENV, raising=False)
+    url = "http://127.0.0.1:1/x"
+    dest = tmp_path / "x"
+    bad_sha = "a" * 64
+    hosts = ["127.0.0.1"]
+    policy = Policy(allow_loopback_http=False)
     with pytest.raises(IntegrityFailed):
-        download_file(
-            "http://127.0.0.1:1/x",
-            tmp_path / "x",
-            expected_size=1,
-            expected_sha256="a" * 64,
-            allowed_hosts=["127.0.0.1"],
-            policy=Policy(allow_loopback_http=False),
-        )
+        download_file(url, dest, expected_size=1, expected_sha256=bad_sha, allowed_hosts=hosts, policy=policy)
 
 
 class _Always500(http.server.BaseHTTPRequestHandler):
@@ -82,15 +80,13 @@ def test_exhaust_retries(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
     threading.Thread(target=server.serve_forever, daemon=True).start()
     monkeypatch.setenv(LOOPBACK_ENV, "1")
     monkeypatch.setattr(download_mod.time, "sleep", lambda _s: None)
+    url = f"http://127.0.0.1:{server.server_address[1]}/f"
+    dest = tmp_path / "f.bin"
+    bad_sha = "a" * 64
+    hosts = ["127.0.0.1"]
+    policy = Policy(allow_loopback_http=True)
     try:
         with pytest.raises(DownloadFailed):
-            download_file(
-                f"http://127.0.0.1:{server.server_address[1]}/f",
-                tmp_path / "f.bin",
-                expected_size=1,
-                expected_sha256="a" * 64,
-                allowed_hosts=["127.0.0.1"],
-                policy=Policy(allow_loopback_http=True),
-            )
+            download_file(url, dest, expected_size=1, expected_sha256=bad_sha, allowed_hosts=hosts, policy=policy)
     finally:
         server.shutdown()

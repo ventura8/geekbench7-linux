@@ -70,15 +70,13 @@ def test_sha_mismatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     thread.start()
     monkeypatch.setenv(LOOPBACK_ENV, "1")
     dest = tmp_path / "out.bin"
+    url = f"http://127.0.0.1:{server.server_address[1]}/file"
+    size = len(_PayloadHandler.payload)
+    bad_sha = "a" * 64
+    hosts = ["127.0.0.1"]
+    policy = Policy(allow_loopback_http=True)
     try:
         with pytest.raises(IntegrityFailed):
-            download_file(
-                f"http://127.0.0.1:{server.server_address[1]}/file",
-                dest,
-                expected_size=len(_PayloadHandler.payload),
-                expected_sha256="a" * 64,
-                allowed_hosts=["127.0.0.1"],
-                policy=Policy(allow_loopback_http=True),
-            )
+            download_file(url, dest, expected_size=size, expected_sha256=bad_sha, allowed_hosts=hosts, policy=policy)
     finally:
         server.shutdown()

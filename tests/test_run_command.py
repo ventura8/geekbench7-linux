@@ -37,4 +37,5 @@ def test_run_execv(xdg: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     )
     with pytest.raises(SystemExit):
         run_cmd.run(ctx)
-    assert called and "--help" in called[0]
+    assert called
+    assert "--help" in called[0]
