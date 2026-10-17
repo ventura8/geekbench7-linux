@@ -12,7 +12,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCANNER_IMAGE="${GB_SONAR_IMAGE:-sonarsource/sonar-scanner-cli:12.2.0.4256_8.1.0}"
 SONAR_HOST="https://sonarcloud.io"
-PROJECT_KEY="ventura8_geekbench7-linux"
 COVERAGE_XML="${ROOT}/artifacts/coverage/coverage.xml"
 
 cd "${ROOT}"

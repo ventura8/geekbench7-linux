@@ -49,17 +49,18 @@ jobs:
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        continue-on-error: true
         run: |
           if [[ -z "${SONAR_TOKEN}" ]]; then
             echo "SONAR_TOKEN not configured; skipping Sonar Cloud upload (local gates still ran)."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           ./scripts/ci-sonar.sh --check-token
+          echo "configured=true" >> "$GITHUB_OUTPUT"
       - name: SonarQube Cloud scan
         if: |
           (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
-          && env.SONAR_TOKEN != ''
+          && steps.sonar_token.outputs.configured == 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         uses: SonarSource/sonarqube-scan-action@v5

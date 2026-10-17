@@ -20,7 +20,8 @@ def main() -> int:
     for path in ROOT.rglob("*"):
         if not path.is_file():
             continue
-        if any(part in {".git", "__pycache__", "build", "artifacts"} or part.startswith("build-") for part in path.parts):
+        skip_parts = {".git", "__pycache__", "build", "artifacts"}
+        if any(part in skip_parts or part.startswith("build-") for part in path.parts):
             continue
         try:
             text = path.read_text(encoding="utf-8")

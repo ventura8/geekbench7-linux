@@ -11,17 +11,20 @@ STAGE="${GB_CI_STAGE:-lint}"
 run_lint() {
   python3 -m compileall -q src tests scripts
   if command -v ruff >/dev/null 2>&1; then
-    ruff check src tests scripts
+    export RUFF_CACHE_DIR="${RUFF_CACHE_DIR:-/tmp/gb-ruff-cache}"
+    mkdir -p "$RUFF_CACHE_DIR"
+    ruff check --no-cache src tests scripts
   fi
   python3 scripts/no-suppressions-lint.py
   python3 scripts/secret-scan.py
   python3 scripts/gen-data.py check
   python3 scripts/sonar-local.py
   if command -v shellcheck >/dev/null 2>&1; then
-    # shellcheck all scripts
+    # Lint every bash script under scripts/ and packaging/.
     mapfile -t shells < <(find scripts packaging -type f -name '*.sh' | sort)
     if ((${#shells[@]})); then
-      shellcheck "${shells[@]}"
+      # SC1091: sourced helpers are resolved via -x from the same tree.
+      shellcheck -x -e SC1091 "${shells[@]}"
     fi
   fi
   if command -v actionlint >/dev/null 2>&1; then

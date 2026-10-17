@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from geekbench7_linux.cli import main
 from geekbench7_linux.errors import UnsupportedEnv
 

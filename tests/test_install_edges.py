@@ -10,7 +10,7 @@ import pytest
 
 import geekbench7_linux.install as install_mod
 from geekbench7_linux.config import load_config
-from geekbench7_linux.errors import UsageError
+from geekbench7_linux.errors import NotInstalled, UsageError
 from geekbench7_linux.install import update_geekbench
 from geekbench7_linux.manifest import load_manifest
 from geekbench7_linux.paths import Paths
@@ -33,7 +33,7 @@ def test_safe_extract_rejects_traversal(tmp_path: Path) -> None:
         info.size = len(data)
         tar.addfile(info, io.BytesIO(data))
     with tarfile.open(tar_path, "r:gz") as tar:
-        with pytest.raises(Exception):
+        with pytest.raises(NotInstalled):
             install_mod._safe_extract(tar, dest)
 
 

@@ -13,7 +13,6 @@ import ast
 import hashlib
 import re
 import sys
-from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -113,7 +112,7 @@ def check_complexity(max_complexity: int) -> list[Finding]:
     for path in _py_files():
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
                 score = _complexity(node)
                 if score > max_complexity:
                     rel = path.relative_to(ROOT).as_posix()

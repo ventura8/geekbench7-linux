@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import json
 import os
 import sys
@@ -16,7 +17,7 @@ if str(SRC) not in sys.path:
 
 # Import after sys.path bootstrap (tests/fixtures is on path via tests/).
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import fixtures.real_tier as real_tier
+real_tier = importlib.import_module("fixtures.real_tier")
 
 
 def pytest_configure(config: pytest.Config) -> None:
