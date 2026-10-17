@@ -8,7 +8,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
-from .arch import ARCH_AMD64, ARCH_ARM64, build_tarball_url
+from .arch import ARCH_AMD64, ARCH_ARM64, ARCH_RISCV64, build_tarball_url
 from .errors import ConfigError
 
 ALLOWED_HOSTS: frozenset[str] = frozenset({"cdn.geekbench.com"})
@@ -62,7 +62,7 @@ def _load_dict(data: dict[str, Any]) -> Manifest:
     if not isinstance(raw_arches, dict):
         raise ConfigError("manifest.arches must be an object")
     arches: dict[str, ArchPin] = {}
-    for key in (ARCH_AMD64, ARCH_ARM64):
+    for key in (ARCH_AMD64, ARCH_ARM64, ARCH_RISCV64):
         entry = raw_arches.get(key)
         if entry is None:
             continue

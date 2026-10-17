@@ -71,6 +71,11 @@ def sample_manifest(tmp_path: Path) -> Path:
                         "size": 0,
                         "sha256": "0" * 64,
                     },
+                    "riscv64": {
+                        "version": "7.1.0",
+                        "size": 0,
+                        "sha256": "0" * 64,
+                    },
                 },
             }
         ),

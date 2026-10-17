@@ -15,13 +15,16 @@ def test_load_packaged_manifest() -> None:
     man = load_manifest()
     assert "amd64" in man.arches
     assert "arm64" in man.arches
+    assert "riscv64" in man.arches
     assert man.pin("amd64").version == "7.1.0"
     assert "cdn.geekbench.com" in man.allowed_hosts
+    assert man.pin("riscv64").url.endswith("LinuxRISCVPreview.tar.gz")
 
 
 def test_load_sample(sample_manifest: Path) -> None:
     man = load_manifest(sample_manifest)
     assert man.pin("arm64").url.endswith("LinuxARMPreview.tar.gz")
+    assert man.pin("riscv64").url.endswith("LinuxRISCVPreview.tar.gz")
 
 
 def test_rejects_bad_sha(tmp_path: Path) -> None:

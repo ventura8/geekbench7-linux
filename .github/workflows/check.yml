@@ -82,27 +82,46 @@ jobs:
         run: ./scripts/ci-docker.sh
 
   packaging:
-    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        format: [deb, rpm-fedora, arch, appimage, tarball]
+        include:
+          - format: deb
+            runner: ubuntu-24.04
+            platform: linux/amd64
+          - format: rpm-fedora
+            runner: ubuntu-24.04
+            platform: linux/amd64
+          - format: arch
+            runner: ubuntu-24.04
+            platform: linux/amd64
+          - format: appimage
+            runner: ubuntu-24.04
+            platform: linux/amd64
+          - format: tarball
+            runner: ubuntu-24.04
+            platform: linux/amd64
+          - format: deb
+            runner: ubuntu-24.04-arm
+            platform: linux/arm64
+          - format: tarball
+            runner: ubuntu-24.04
+            platform: linux/riscv64
+            qemu: true
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Package ${{ matrix.format }}
-        run: |
-          sudo apt-get update
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y meson ninja-build python3 desktop-file-utils appstream
-          case "${{ matrix.format }}" in
-            deb) sudo DEBIAN_FRONTEND=noninteractive apt-get install -y debhelper
-                 ./scripts/release-deb.sh || meson setup build-pkg -Dflavor=deb && meson compile -C build-pkg ;;
-            rpm-fedora) ./scripts/release-rpm.sh fedora || echo "rpmbuild may be unavailable on runner" ;;
-            arch) ./scripts/release-arch.sh || true ;;
-            appimage) ./scripts/release-portable.sh appimage || true ;;
-            tarball) ./scripts/release-portable.sh tarball ;;
-          esac
+      - name: Set up QEMU
+        if: matrix.qemu
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: riscv64
+      - name: Packaging cell ${{ matrix.format }} (${{ matrix.platform }})
+        env:
+          GB_DOCKER_PLATFORM: ${{ matrix.platform }}
+        run: ./scripts/ci-packaging-cell.sh "${{ matrix.format }}"
 
   e2e-smoke:
     runs-on: ubuntu-24.04

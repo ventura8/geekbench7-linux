@@ -1,5 +1,7 @@
 %global gb_version %{?gb_version}%{!?gb_version:0.0.0}
 %global app_id io.github.ventura8.Geekbench7Linux
+# Pure Python/Meson wrapper — no ELF payloads worth a debuginfo package.
+%global debug_package %{nil}
 
 Name:           geekbench7-linux
 Version:        %{gb_version}
@@ -8,7 +10,7 @@ Summary:        Unofficial packaging for official Geekbench 7 on Linux
 License:        MIT
 URL:            https://github.com/ventura8/geekbench7-linux
 Source0:        %{name}-%{version}.tar.gz
-ExclusiveArch:  x86_64 aarch64
+ExclusiveArch:  x86_64 aarch64 riscv64
 BuildRequires:  meson ninja-build python3 desktop-file-utils appstream
 Requires:       python3
 Requires:       (curl or wget)
@@ -55,5 +57,5 @@ appstreamcli validate --no-net %{buildroot}%{_datadir}/metainfo/%{app_id}.metain
 %{_datadir}/fish/vendor_completions.d/geekbench7-linux.fish
 
 %changelog
-* Fri Oct 17 2026 Sergiu Alexandrescu <alexandrescu.sergiu@gmail.com> - 1.0.0-1
+* Sat Oct 17 2026 Sergiu Alexandrescu <alexandrescu.sergiu@gmail.com> - 1.0.0-1
 - First stable release with SonarQube coverage gate

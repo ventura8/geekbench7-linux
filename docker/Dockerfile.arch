@@ -1,0 +1,12 @@
+# Arch Linux packaging image
+FROM archlinux:base-devel
+
+RUN pacman -Syu --noconfirm \
+    && pacman -S --noconfirm --needed \
+    git python meson ninja \
+    desktop-file-utils appstream file binutils \
+    && pacman -Scc --noconfirm \
+    && useradd -m builder
+
+WORKDIR /src
+CMD ["./scripts/release-arch.sh"]

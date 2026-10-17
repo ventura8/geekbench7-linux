@@ -14,7 +14,7 @@ Vcs-Git: https://github.com/ventura8/geekbench7-linux.git
 Vcs-Browser: https://github.com/ventura8/geekbench7-linux
 
 Package: geekbench7-linux
-Architecture: amd64 arm64
+Architecture: amd64 arm64 riscv64
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          python3 (>= 3.10),

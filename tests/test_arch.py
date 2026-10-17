@@ -4,7 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from geekbench7_linux.arch import ARCH_AMD64, ARCH_ARM64, build_tarball_url, detect_arch
+from geekbench7_linux.arch import (
+    ARCH_AMD64,
+    ARCH_ARM64,
+    ARCH_RISCV64,
+    build_tarball_url,
+    detect_arch,
+)
 from geekbench7_linux.errors import UnsupportedEnv
 
 
@@ -18,9 +24,14 @@ def test_detect_arm64() -> None:
     assert detect_arch("arm64") == ARCH_ARM64
 
 
-def test_detect_rejects_riscv() -> None:
+def test_detect_riscv64() -> None:
+    assert detect_arch("riscv64") == ARCH_RISCV64
+    assert detect_arch("riscv") == ARCH_RISCV64
+
+
+def test_detect_rejects_unknown() -> None:
     with pytest.raises(UnsupportedEnv):
-        detect_arch("riscv64")
+        detect_arch("ppc64le")
 
 
 def test_url_templates() -> None:
@@ -28,6 +39,10 @@ def test_url_templates() -> None:
     assert (
         build_tarball_url("7.1.0", ARCH_ARM64)
         == "https://cdn.geekbench.com/Geekbench-7.1.0-LinuxARMPreview.tar.gz"
+    )
+    assert (
+        build_tarball_url("7.1.0", ARCH_RISCV64)
+        == "https://cdn.geekbench.com/Geekbench-7.1.0-LinuxRISCVPreview.tar.gz"
     )
 
 
@@ -43,6 +58,6 @@ def test_url_rejects_unsafe_version() -> None:
     with pytest.raises(UnsupportedEnv):
         build_tarball_url("7..1.0", ARCH_AMD64)
     with pytest.raises(UnsupportedEnv):
-        build_tarball_url("7.1.0", "riscv")
+        build_tarball_url("7.1.0", "mips")
     with pytest.raises(UnsupportedEnv):
         build_tarball_url("", ARCH_AMD64)

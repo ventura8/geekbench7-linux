@@ -6,4 +6,4 @@ geekbench7-linux (1.0.0) unstable; urgency=medium
   * SonarQube Cloud support with per-file coverage gate (>= 90%).
   * Not affiliated with Primate Labs; buy Geekbench at https://www.geekbench.com/buy/.
 
- -- Sergiu Alexandrescu <alexandrescu.sergiu@gmail.com>  Fri, 17 Oct 2026 18:00:00 +0000
+ -- Sergiu Alexandrescu <alexandrescu.sergiu@gmail.com>  Sat, 17 Oct 2026 18:00:00 +0000

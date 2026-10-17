@@ -14,7 +14,9 @@ never claim we made Geekbench.
 1. **Never redistribute, mirror, patch or decompile Geekbench binaries** — not
    in git, packages, Docker images, CI caches or artifacts.
 2. **Download only from `https://cdn.geekbench.com/`**, URL built locally from
-   the manifest template (amd64: `Linux.tar.gz`, arm64: `LinuxARMPreview.tar.gz`).
+   the manifest template (amd64: `Linux.tar.gz`, arm64: `LinuxARMPreview.tar.gz`,
+   riscv64: `LinuxRISCVPreview.tar.gz` — ARM/RISC-V from
+   https://www.geekbench.com/preview/).
 3. **HTTPS host allowlist** from the runtime manifest; refuse off-allowlist redirects.
 4. **No maintainer scripts** that touch `$HOME` or run Geekbench.
 5. **Credits and disclaimer stay intact** (`credits.py`, README, CREDITS.md,

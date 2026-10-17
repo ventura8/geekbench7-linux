@@ -15,7 +15,7 @@ def register(subparsers: argparse._SubParsersAction) -> None:
         action="store_true",
         help="accept Geekbench terms / unofficial-wrapper consent before download",
     )
-    parser.add_argument("--arch", default="", help="override arch (amd64/arm64)")
+    parser.add_argument("--arch", default="", help="override arch (amd64/arm64/riscv64)")
     parser.set_defaults(_handler=run)
 
 

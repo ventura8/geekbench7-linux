@@ -1,0 +1,14 @@
+# openSUSE RPM packaging image — Leap 16.0
+FROM opensuse/leap:16.0
+
+ENV LANG=C.UTF-8
+RUN zypper --non-interactive refresh \
+    && zypper --non-interactive install -y --no-recommends \
+    git rpm-build rpmlint python3 \
+    meson ninja gcc glibc-devel \
+    desktop-file-utils AppStream \
+    file binutils util-linux findutils tar gzip \
+    && zypper clean -a
+
+WORKDIR /src
+CMD ["./scripts/release-rpm.sh", "opensuse"]

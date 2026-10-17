@@ -3,13 +3,13 @@ pkgname=geekbench7-linux
 pkgver=@VERSION@
 pkgrel=1
 pkgdesc="Unofficial packaging for official Geekbench 7 on Linux (not affiliated with Primate Labs)"
-arch=('x86_64' 'aarch64')
+arch=('x86_64' 'aarch64' 'riscv64')
 url="https://github.com/ventura8/geekbench7-linux"
 license=('MIT')
 depends=('python' 'curl')
 makedepends=('meson' 'ninja' 'desktop-file-utils' 'appstream')
-source=("$pkgname-$pkgver.tar.gz")
-sha256sums=('SKIP')
+source=('@SOURCE@')
+sha256sums=('@SHA256@')
 
 build() {
   arch-meson "$srcdir/$pkgname-$pkgver" build -Dflavor=arch -Dpython=/usr/bin/python -Dgeekbench_alias=true

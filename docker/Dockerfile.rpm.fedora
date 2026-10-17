@@ -1,0 +1,13 @@
+# Fedora RPM packaging image — Fedora 44
+FROM fedora:44
+
+ENV LANG=C.UTF-8
+RUN dnf -y --setopt=install_weak_deps=False install \
+    git rpm-build rpmlint python3 \
+    meson ninja-build gcc glibc-devel \
+    desktop-file-utils appstream \
+    file binutils util-linux findutils tar gzip \
+    && dnf clean all
+
+WORKDIR /src
+CMD ["./scripts/release-rpm.sh", "fedora"]

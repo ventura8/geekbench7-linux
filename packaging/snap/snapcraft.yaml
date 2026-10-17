@@ -1,11 +1,11 @@
 name: geekbench7-linux
 base: core24
-version: git
+version: '1.0.0'
 summary: Unofficial packaging for official Geekbench 7
 description: |
   Downloads and launches official Geekbench 7 from Primate Labs' CDN.
   Not affiliated with Primate Labs. Buy Geekbench at https://www.geekbench.com/buy/.
-grade: devel
+grade: stable
 confinement: classic
 
 apps:
@@ -17,7 +17,7 @@ apps:
 parts:
   geekbench7-linux:
     plugin: meson
-    source: ../..
+    source: geekbench7-linux-src.tar.gz
     meson-parameters:
       - -Dflavor=snap
       - -Dpython=/usr/bin/python3

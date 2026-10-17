@@ -20,7 +20,8 @@ Geekbench itself: contact Primate Labs via https://www.geekbench.com/
   Flatpak, snap or tarball.
 - On first run (or `update`), downloads the official tarball from
   `cdn.geekbench.com` into your XDG data directory and verifies it.
-- Supports **amd64** and **arm64** (ARM preview builds).
+- Supports **amd64**, **arm64**, and **riscv64** (ARM/RISC-V official preview
+  builds from https://www.geekbench.com/preview/).
 
 Geekbench on Linux has no in-app auto-updater. **Your package manager updates
 the wrapper**; **`geekbench7-linux update`** (and our upstream-watch pins)

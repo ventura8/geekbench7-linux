@@ -29,5 +29,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `Upstream Geekbench ${version} available`,
-              body: `Detected Geekbench ${version} on the download page.\n\nNext steps:\n1. Download amd64 + arm64 tarballs from cdn.geekbench.com\n2. Record size+sha256 in runtime-manifest.json\n3. Run container E2E\n4. Open a pin PR\n\nDo not commit Geekbench binaries.`,
+              body: `Detected Geekbench ${version} on the download page.\n\nNext steps:\n1. Download amd64 + arm64 + riscv64 tarballs from cdn.geekbench.com (ARM/RISC-V: https://www.geekbench.com/preview/)\n2. Record size+sha256 in runtime-manifest.json\n3. Run container E2E\n4. Open a pin PR\n\nDo not commit Geekbench binaries.`,
             });

@@ -1,0 +1,14 @@
+# Debian packaging image — Ubuntu 24.04
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates git \
+    build-essential debhelper dpkg-dev devscripts fakeroot lintian \
+    meson ninja-build python3 \
+    desktop-file-utils appstream \
+    file binutils \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+CMD ["./scripts/release-deb.sh"]

@@ -10,7 +10,7 @@ from ..install import update_geekbench
 
 def register(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser("update", help="download the pinned Geekbench version again")
-    parser.add_argument("--arch", default="", help="override arch (amd64/arm64)")
+    parser.add_argument("--arch", default="", help="override arch (amd64/arm64/riscv64)")
     parser.set_defaults(_handler=run)
 
 

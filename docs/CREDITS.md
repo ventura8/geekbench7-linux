@@ -19,7 +19,7 @@ cross-platform benchmark that makes performance comparable across machines.
 | Buy / license | https://www.geekbench.com/buy/ |
 | Geekbench Browser | https://browser.geekbench.com |
 | Linux download | https://www.geekbench.com/download/linux/ |
-| Preview builds | https://www.geekbench.com/preview/ |
+| Preview builds (Linux/AArch64, Linux/RISC-V) | https://www.geekbench.com/preview/ |
 
 ### Please support Primate Labs
 
