@@ -91,7 +91,9 @@ def cmd_metainfo(args: argparse.Namespace) -> int:
     from geekbench7_linux.credits import render_metainfo_paragraphs
     from geekbench7_linux.version import get_version
 
-    text = _resolve_under_allowed(args.input).read_text(encoding="utf-8")
+    # Fixed in-repo template (not CLI-supplied) so generated content is not tainted.
+    template = ROOT / "data" / f"{APP_ID}.metainfo.xml.in"
+    text = template.read_text(encoding="utf-8")
     paragraphs = "".join(f"    <p>{xml_escape(p)}</p>\n" for p in render_metainfo_paragraphs())
     rendered = (
         text.replace("@APP_ID@", APP_ID)
@@ -138,7 +140,6 @@ def main() -> int:
     p_desk.set_defaults(func=cmd_desktop)
 
     p_meta = sub.add_parser("metainfo")
-    p_meta.add_argument("input")
     p_meta.add_argument("output")
     p_meta.set_defaults(func=cmd_metainfo)
 

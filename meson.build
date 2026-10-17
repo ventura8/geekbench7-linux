@@ -72,10 +72,13 @@ if get_option('desktop')
   )
   gb_metainfo_file = custom_target(
     'gb-metainfo',
-    input: 'data/' + gb_app_id + '.metainfo.xml.in',
     output: gb_app_id + '.metainfo.xml',
-    command: [gb_python, gb_gen, 'metainfo', '@INPUT@', '@OUTPUT@'],
-    depend_files: files('src/geekbench7_linux/credits.py', 'src/geekbench7_linux/__init__.py'),
+    command: [gb_python, gb_gen, 'metainfo', '@OUTPUT@'],
+    depend_files: files(
+      'data/' + gb_app_id + '.metainfo.xml.in',
+      'src/geekbench7_linux/credits.py',
+      'src/geekbench7_linux/__init__.py',
+    ),
     install: true,
     install_dir: gb_datadir / 'metainfo',
   )
