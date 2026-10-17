@@ -14,10 +14,25 @@ esac
 
 cd "$ROOT"
 docker build -f "$DOCKERFILE" -t "$IMAGE_TAG" .
+# Mount repo read-only; writable scratch for bytecode, meson build, coverage XML.
+SCRATCH="$(mktemp -d /tmp/gb-ci.XXXXXX)"
+cleanup() { rm -rf "$SCRATCH"; }
+trap cleanup EXIT
+mkdir -p "$SCRATCH/home" "$SCRATCH/pycache" "$SCRATCH/build" "$SCRATCH/coverage"
 docker run --rm \
-  -e HOME=/tmp/gb-home \
+  -e HOME=/scratch/home \
   -e GB_CI_STAGE="$STAGE" \
+  -e PYTHONPYCACHEPREFIX=/scratch/pycache \
+  -e PYTHONDONTWRITEBYTECODE=1 \
+  -e GB_BUILD_DIR=/scratch/build \
+  -e GB_COVERAGE_XML=/scratch/coverage/coverage.xml \
   -v "$ROOT:/src:ro" \
+  -v "$SCRATCH:/scratch" \
   -w /src \
   "$IMAGE_TAG" \
   /src/scripts/ci-inside.sh
+# Copy coverage report back for Sonar / local gates when present.
+if [[ -f "$SCRATCH/coverage/coverage.xml" ]]; then
+  mkdir -p "$ROOT/artifacts/coverage"
+  cp -f "$SCRATCH/coverage/coverage.xml" "$ROOT/artifacts/coverage/coverage.xml"
+fi

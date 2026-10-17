@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Commands run inside the CI container (mounted /src).
 set -euo pipefail
+# Source tree may be mounted read-only: keep bytecode off the mount.
+export PYTHONDONTWRITEBYTECODE=1
+export PYTHONPYCACHEPREFIX="${PYTHONPYCACHEPREFIX:-/tmp/gb-pycache}"
+mkdir -p "$PYTHONPYCACHEPREFIX"
 cd /src
 STAGE="${GB_CI_STAGE:-lint}"
 
@@ -26,21 +30,31 @@ run_lint() {
   if command -v yamllint >/dev/null 2>&1; then
     yamllint -d '{extends: default, rules: {line-length: {max: 140}}}' .github/workflows || true
   fi
-  meson setup build-lint --werror -Dflavor=meson
-  meson compile -C build-lint
-  meson test -C build-lint --suite data
+  # Meson build dir must be writable (not on a read-only /src mount).
+  BUILD_DIR="${GB_BUILD_DIR:-/tmp/gb-build-lint}"
+  rm -rf "$BUILD_DIR"
+  meson setup "$BUILD_DIR" --werror -Dflavor=meson
+  meson compile -C "$BUILD_DIR"
+  meson test -C "$BUILD_DIR" --suite data
   echo "lint stage ok"
 }
 
 run_coverage() {
-  mkdir -p artifacts/coverage
+  mkdir -p /tmp/gb-coverage
+  # Prefer a writable report path when /src is read-only.
+  COVERAGE_XML="${GB_COVERAGE_XML:-/tmp/gb-coverage/coverage.xml}"
   python3 -m pytest tests --ignore=tests/e2e \
     --cov=geekbench7_linux \
     --cov-branch \
-    --cov-report=xml:artifacts/coverage/coverage.xml \
+    --cov-report=xml:"${COVERAGE_XML}" \
     --cov-report=term-missing \
     -q
-  python3 scripts/check-coverage.py --xml artifacts/coverage/coverage.xml --min 90
+  mkdir -p artifacts/coverage 2>/dev/null || true
+  if [[ -d artifacts/coverage && -w artifacts ]]; then
+    cp -f "${COVERAGE_XML}" artifacts/coverage/coverage.xml
+    COVERAGE_XML=artifacts/coverage/coverage.xml
+  fi
+  python3 scripts/check-coverage.py --xml "${COVERAGE_XML}" --min 90
 }
 
 run_compat() {
