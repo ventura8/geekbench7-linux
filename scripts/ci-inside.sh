@@ -46,8 +46,9 @@ run_coverage() {
   mkdir -p /tmp/gb-coverage
   # Prefer a writable report path when /src is read-only.
   COVERAGE_XML="${GB_COVERAGE_XML:-/tmp/gb-coverage/coverage.xml}"
-  python3 -m pytest tests --ignore=tests/e2e \
-    --cov=geekbench7_linux \
+  # Paths in Cobertura must be repo-relative (src/geekbench7_linux/...) for Sonar.
+  PYTHONPATH=src python3 -m pytest tests --ignore=tests/e2e \
+    --cov=src/geekbench7_linux \
     --cov-branch \
     --cov-report=xml:"${COVERAGE_XML}" \
     --cov-report=term-missing \
@@ -57,6 +58,23 @@ run_coverage() {
     cp -f "${COVERAGE_XML}" artifacts/coverage/coverage.xml
     COVERAGE_XML=artifacts/coverage/coverage.xml
   fi
+  # Normalize Cobertura filenames to src/geekbench7_linux/... when needed.
+  python3 - "${COVERAGE_XML}" <<'PY'
+import sys
+from pathlib import Path
+import re
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+def fix(match: re.Match[str]) -> str:
+    name = match.group(1)
+    if name.startswith("src/"):
+        return match.group(0)
+    if name.startswith("geekbench7_linux/"):
+        return f'filename="src/{name}"'
+    return f'filename="src/geekbench7_linux/{name}"'
+text = re.sub(r'filename="([^"]+)"', fix, text)
+path.write_text(text, encoding="utf-8")
+PY
   python3 scripts/check-coverage.py --xml "${COVERAGE_XML}" --min 90
 }
 

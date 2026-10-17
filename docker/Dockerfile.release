@@ -1,25 +1,47 @@
 # Portable release image (tarball / AppImage / Flatpak) — Ubuntu 24.04
-# Multi-arch: build with --platform linux/amd64|arm64 (riscv64: tarball only; no appimagetool).
+# Multi-arch: build with --platform linux/amd64|arm64 (riscv64: tarball only).
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates git curl \
-    meson ninja-build gcc libc6-dev python3 \
-    desktop-file-utils appstream file binutils squashfs-tools zsync \
-    flatpak flatpak-builder elfutils librsvg2-common \
-    xdg-utils man-db bash-completion \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        appstream \
+        bash-completion \
+        binutils \
+        ca-certificates \
+        curl \
+        desktop-file-utils \
+        elfutils \
+        file \
+        flatpak \
+        flatpak-builder \
+        gcc \
+        git \
+        libc6-dev \
+        librsvg2-common \
+        man-db \
+        meson \
+        ninja-build \
+        python3 \
+        squashfs-tools \
+        xdg-utils \
+        zsync \
     && rm -rf /var/lib/apt/lists/*
 
 ARG TARGETARCH
-# appimagetool + type2 runtime: amd64/arm64 only (no official riscv64 tool yet).
 ARG APPIMAGETOOL_VERSION=1.9.1
 ARG APPIMAGE_RUNTIME_VERSION=20251108
 RUN set -euo pipefail; \
     case "${TARGETARCH}" in \
-      amd64) AI_ARCH=x86_64; AI_SHA=ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0; RT_SHA=2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d ;; \
-      arm64) AI_ARCH=aarch64; AI_SHA=f0837e7448a0c1e4e650a93bb3e85802546e60654ef287576f46c71c126a9158; RT_SHA=00cbdfcf917cc6c0ff6d3347d59e0ca1f7f45a6df1a428a0d6d8a78664d87444 ;; \
+      amd64) \
+        AI_ARCH=x86_64; \
+        AI_SHA=ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0; \
+        RT_SHA=2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d ;; \
+      arm64) \
+        AI_ARCH=aarch64; \
+        AI_SHA=f0837e7448a0c1e4e650a93bb3e85802546e60654ef287576f46c71c126a9158; \
+        RT_SHA=00cbdfcf917cc6c0ff6d3347d59e0ca1f7f45a6df1a428a0d6d8a78664d87444 ;; \
       *) echo "skipping appimagetool on TARGETARCH=${TARGETARCH}"; exit 0 ;; \
     esac; \
     curl -fsSL --proto '=https' -o /tmp/appimagetool.AppImage \
@@ -31,8 +53,8 @@ RUN set -euo pipefail; \
     rm -f /tmp/appimagetool.AppImage; \
     curl -fsSL --proto '=https' -o "/opt/appimagetool/runtime-${AI_ARCH}" \
       "https://github.com/AppImage/type2-runtime/releases/download/${APPIMAGE_RUNTIME_VERSION}/runtime-${AI_ARCH}"; \
-    echo "${RT_SHA}  /opt/appimagetool/runtime-${AI_ARCH}" | sha256sum -c -; \
-    ln -sf "/opt/appimagetool/runtime-${AI_ARCH}" /opt/appimagetool/runtime-x86_64 2>/dev/null || true
+    echo "${RT_SHA}  /opt/appimagetool/runtime-${AI_ARCH}" | sha256sum -c -
 
 WORKDIR /src
+USER 65534:65534
 CMD ["./scripts/release-portable.sh", "tarball"]

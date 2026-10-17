@@ -88,9 +88,12 @@ if [[ "${FORMAT}" == snap ]]; then
   ./scripts/ci-snap-build.sh
 else
   docker build "${BUILD_ARGS[@]}" -f "${DOCKERFILE}" -t "${IMAGE}" .
-  docker run --rm "${DOCKER_FLAGS[@]}" "${PLATFORM_ARGS[@]}" \
+  # Override image USER so artifacts land as the host uid (writable mount).
+  docker run --rm --user "$(id -u):$(id -g)" \
+    "${DOCKER_FLAGS[@]}" "${PLATFORM_ARGS[@]}" \
     -e "GB_ARTIFACTS_DIR=${ART_IN}" \
     -e "GB_RPM_TARGET=${GB_RPM_TARGET:-}" \
+    -e HOME=/tmp \
     -v "${ROOT}:/src:rw" "${GIT_MOUNT[@]}" -w /src \
     "${IMAGE}" "${BUILD[@]}"
 fi

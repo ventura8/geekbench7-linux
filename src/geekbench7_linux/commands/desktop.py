@@ -8,6 +8,7 @@ from pathlib import Path
 from .. import APP_ID, APP_NAME
 from ..context import AppContext
 from ..credits import render_desktop_comment
+from ..errors import UsageError
 
 
 def register(subparsers: argparse._SubParsersAction) -> None:
@@ -21,16 +22,16 @@ def _desktop_path() -> Path:
     return home / ".local" / "share" / "applications" / f"{APP_ID}.desktop"
 
 
-def run(ctx: AppContext) -> int:
-    path = _desktop_path()
-    if ctx.args.action == "remove":
-        if path.is_file():
-            path.unlink()
-        if getattr(ctx.args, "json", False):
-            ctx.print_json({"status": "removed", "path": str(path)})
-        else:
-            print(f"removed {path}")
-        return 0
+def _remove_desktop(ctx: AppContext, path: Path) -> None:
+    if path.is_file():
+        path.unlink()
+    if getattr(ctx.args, "json", False):
+        ctx.print_json({"status": "removed", "path": str(path)})
+    else:
+        print(f"removed {path}")
+
+
+def _install_desktop(ctx: AppContext, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     content = "\n".join(
         [
@@ -51,4 +52,15 @@ def run(ctx: AppContext) -> int:
         ctx.print_json({"status": "installed", "path": str(path)})
     else:
         print(f"installed {path}")
+
+
+def run(ctx: AppContext) -> int:
+    path = _desktop_path()
+    action = ctx.args.action
+    if action == "remove":
+        _remove_desktop(ctx, path)
+    elif action == "install":
+        _install_desktop(ctx, path)
+    else:
+        raise UsageError(f"unknown desktop action {action!r}")
     return 0

@@ -17,6 +17,18 @@ def _import_package() -> None:
         sys.path.insert(0, str(SRC))
 
 
+def _resolve_under_allowed(path_arg: str) -> Path:
+    """Resolve a CLI path; refuse writes/reads outside the repo or cwd (build dirs)."""
+    candidate = Path(path_arg).expanduser()
+    if not candidate.is_absolute():
+        candidate = Path.cwd() / candidate
+    resolved = candidate.resolve()
+    allowed_roots = (ROOT.resolve(), Path.cwd().resolve())
+    if not any(resolved == root or root in resolved.parents for root in allowed_roots):
+        raise SystemExit(f"refusing path outside allowed roots: {resolved}")
+    return resolved
+
+
 def cmd_name(args: argparse.Namespace) -> int:
     _import_package()
     from geekbench7_linux import APP_ID, APP_NAME, PACKAGE
@@ -31,7 +43,8 @@ def cmd_name(args: argparse.Namespace) -> int:
 
 
 def cmd_build_info(args: argparse.Namespace) -> int:
-    out = Path(args.output)
+    out = _resolve_under_allowed(args.output)
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(
         f'VERSION = "{args.version}"\nFLAVOR = "{args.flavor}"\n',
         encoding="utf-8",
@@ -60,7 +73,9 @@ def cmd_desktop(args: argparse.Namespace) -> int:
         .replace("@EXEC@", "geekbench7-linux")
         .replace("@TRYEXEC@", "geekbench7-linux")
     )
-    Path(args.output).write_text(rendered, encoding="utf-8")
+    out = _resolve_under_allowed(args.output)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(rendered, encoding="utf-8")
     return 0
 
 
@@ -70,7 +85,7 @@ def cmd_metainfo(args: argparse.Namespace) -> int:
     from geekbench7_linux.credits import render_metainfo_paragraphs
     from geekbench7_linux.version import get_version
 
-    text = Path(args.input).read_text(encoding="utf-8")
+    text = _resolve_under_allowed(args.input).read_text(encoding="utf-8")
     paragraphs = "".join(f"    <p>{xml_escape(p)}</p>\n" for p in render_metainfo_paragraphs())
     rendered = (
         text.replace("@APP_ID@", APP_ID)
@@ -78,7 +93,9 @@ def cmd_metainfo(args: argparse.Namespace) -> int:
         .replace("@DESCRIPTION@", paragraphs.rstrip())
         .replace("@VERSION@", get_version())
     )
-    Path(args.output).write_text(rendered, encoding="utf-8")
+    out = _resolve_under_allowed(args.output)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(rendered, encoding="utf-8")
     return 0
 
 

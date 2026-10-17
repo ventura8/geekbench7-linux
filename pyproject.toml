@@ -7,10 +7,12 @@ addopts = "-ra"
 
 [tool.coverage.run]
 branch = true
+relative_files = true
 source = ["src/geekbench7_linux"]
 
 [tool.coverage.report]
 show_missing = true
+include = ["src/geekbench7_linux/*", "src/geekbench7_linux/**/*"]
 
 [tool.ruff]
 target-version = "py310"

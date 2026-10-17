@@ -18,7 +18,6 @@ import http.client
 import logging
 import os
 import re
-import ssl
 import time
 import urllib.error
 import urllib.request
@@ -38,7 +37,8 @@ LOOPBACK_ENV = "GB_TEST_LOOPBACK_HTTP"
 CHUNK_SIZE = 64 * 1024
 ZERO_SHA256 = "0" * 64
 _UA_VERSION = re.compile(r"[0-9A-Za-z.+_-]{1,64}")
-_RETRYABLE = (http.client.HTTPException, ConnectionError, TimeoutError, ssl.SSLError)
+# OSError covers ConnectionError, TimeoutError, and ssl.SSLError on Python 3.
+_RETRYABLE = (http.client.HTTPException, OSError)
 
 
 @dataclass(frozen=True)
@@ -132,10 +132,11 @@ def _stream_to_part(resp: object, part: Path) -> tuple[str, int]:
     return digest.hexdigest(), written
 
 
-def _classify_http_error(exc: urllib.error.HTTPError, url: str) -> Exception:
+def _classify_http_error(exc: urllib.error.HTTPError, url: str) -> DownloadFailed | None:
+    """Return a DownloadFailed for 4xx; None means the caller should retry/re-raise."""
     if 400 <= exc.code < 500:
         return DownloadFailed(f"HTTP {exc.code} downloading {url}")
-    return exc
+    return None
 
 
 def _attempt_download(
@@ -149,9 +150,9 @@ def _attempt_download(
         with opener.open(request, timeout=timeout) as resp:
             return _stream_to_part(resp, part)
     except urllib.error.HTTPError as exc:
-        classified = _classify_http_error(exc, url)
-        if isinstance(classified, DownloadFailed):
-            raise classified from exc
+        failed = _classify_http_error(exc, url)
+        if failed is not None:
+            raise failed from exc
         raise
 
 
@@ -198,7 +199,7 @@ def download_file(
     tofu = _is_tofu(expected_size, expected_sha256)
     opener = urllib.request.build_opener(SafeRedirectHandler())
     request = urllib.request.Request(url, headers={"User-Agent": user_agent()})
-    last_error: Exception | None = None
+    last_error: OSError | urllib.error.URLError | http.client.HTTPException | None = None
     got = ""
     written = 0
     for attempt in range(5):
@@ -207,7 +208,8 @@ def download_file(
             break
         except DownloadFailed:
             raise
-        except (*_RETRYABLE, urllib.error.URLError, OSError, urllib.error.HTTPError) as exc:
+        # HTTPError is a URLError subclass — do not list it again (python:S5713).
+        except (*_RETRYABLE, urllib.error.URLError) as exc:
             last_error = exc
         time.sleep(min(2**attempt, 8))
         if part.exists():

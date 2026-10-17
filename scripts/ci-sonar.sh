@@ -57,7 +57,7 @@ ensure_coverage() {
 			PY=python3
 		fi
 		PYTHONPATH=src "${PY}" -m pytest tests --ignore=tests/e2e \
-			--cov=geekbench7_linux --cov-branch \
+			--cov=src/geekbench7_linux --cov-branch \
 			--cov-report=xml:"${COVERAGE_XML}" -q
 	fi
 	python3 "${ROOT}/scripts/check-coverage.py" --xml "${COVERAGE_XML}" --min 90

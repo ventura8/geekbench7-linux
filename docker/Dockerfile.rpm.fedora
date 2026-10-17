@@ -3,11 +3,23 @@ FROM fedora:44
 
 ENV LANG=C.UTF-8
 RUN dnf -y --setopt=install_weak_deps=False install \
-    git rpm-build rpmlint python3 \
-    meson ninja-build gcc glibc-devel \
-    desktop-file-utils appstream \
-    file binutils util-linux findutils tar gzip \
+        appstream \
+        binutils \
+        desktop-file-utils \
+        file \
+        findutils \
+        gcc \
+        git \
+        glibc-devel \
+        gzip \
+        meson \
+        ninja-build \
+        python3 \
+        rpm-build \
+        rpmlint \
+        tar \
+        util-linux \
     && dnf clean all
-
 WORKDIR /src
+USER 65534:65534
 CMD ["./scripts/release-rpm.sh", "fedora"]

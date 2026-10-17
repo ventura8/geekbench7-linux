@@ -15,6 +15,9 @@ _geekbench7_linux() {
     setup | run)
       COMPREPLY=($(compgen -W "--accept-eula --json --allow-root" -- "${cur}"))
       ;;
+    *)
+      COMPREPLY=()
+      ;;
   esac
 }
 complete -F _geekbench7_linux geekbench7-linux

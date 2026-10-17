@@ -13,24 +13,28 @@ PATTERNS = [
     re.compile(r"AKIA[0-9A-Z]{16}"),
     re.compile(r"ghp_[A-Za-z0-9]{36}"),
 ]
+_SKIP_PARTS = frozenset({".git", "__pycache__", "build", "artifacts"})
+
+
+def _should_skip(path: Path) -> bool:
+    return any(part in _SKIP_PARTS or part.startswith("build-") for part in path.parts)
+
+
+def _file_hits(path: Path) -> bool:
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return False
+    return any(pattern.search(text) for pattern in PATTERNS)
 
 
 def main() -> int:
     hits: list[str] = []
     for path in ROOT.rglob("*"):
-        if not path.is_file():
+        if not path.is_file() or _should_skip(path):
             continue
-        skip_parts = {".git", "__pycache__", "build", "artifacts"}
-        if any(part in skip_parts or part.startswith("build-") for part in path.parts):
-            continue
-        try:
-            text = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            continue
-        for pattern in PATTERNS:
-            if pattern.search(text):
-                hits.append(str(path.relative_to(ROOT)))
-                break
+        if _file_hits(path):
+            hits.append(str(path.relative_to(ROOT)))
     if hits:
         print("possible secrets:", file=sys.stderr)
         for hit in hits:

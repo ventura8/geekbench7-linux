@@ -67,9 +67,8 @@ def main(argv: list[str] | None = None, prog: str | None = None) -> int:
     args_list = list(sys.argv[1:] if argv is None else argv)
     # ``geekbench7`` alias defaults to run when no subcommand is given.
     if basename == "geekbench7" and (not args_list or args_list[0].startswith("-")):
-        if args_list and args_list[0] in {"-V", "--version", "-h", "--help"}:
-            pass
-        else:
+        helpish = args_list and args_list[0] in {"-V", "--version", "-h", "--help"}
+        if not helpish:
             args_list = ["run", "--", *args_list]
     args = parser.parse_args(args_list)
     if not getattr(args, "command", None):

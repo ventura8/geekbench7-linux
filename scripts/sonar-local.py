@@ -75,23 +75,20 @@ def _complexity(node: ast.AST) -> int:
                     self.nesting -= 1
                     break
 
-        def visit_For(self, node: ast.For) -> None:
+        def _visit_nested_block(self, node: ast.AST) -> None:
             self._bump()
             self.nesting += 1
             self.generic_visit(node)
             self.nesting -= 1
+
+        def visit_For(self, node: ast.For) -> None:
+            self._visit_nested_block(node)
 
         def visit_While(self, node: ast.While) -> None:
-            self._bump()
-            self.nesting += 1
-            self.generic_visit(node)
-            self.nesting -= 1
+            self._visit_nested_block(node)
 
         def visit_ExceptHandler(self, node: ast.ExceptHandler) -> None:
-            self._bump()
-            self.nesting += 1
-            self.generic_visit(node)
-            self.nesting -= 1
+            self._visit_nested_block(node)
 
         def visit_BoolOp(self, node: ast.BoolOp) -> None:
             self.score += max(0, len(node.values) - 1)

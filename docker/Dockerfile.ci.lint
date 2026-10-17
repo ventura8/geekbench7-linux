@@ -1,13 +1,24 @@
 # Lint stage image for geekbench7-linux
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 python3-pip python3-venv \
-    meson ninja-build \
-    shellcheck \
-    desktop-file-utils appstream libxml2-utils \
-    ca-certificates curl \
-    && rm -rf /var/lib/apt/lists/*
-RUN pip3 install --break-system-packages 'ruff==0.8.0' 'yamllint==1.35.1'
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        appstream \
+        ca-certificates \
+        curl \
+        desktop-file-utils \
+        libxml2-utils \
+        meson \
+        ninja-build \
+        python3 \
+        python3-pip \
+        python3-venv \
+        shellcheck \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip3 install --break-system-packages --only-binary=:all: \
+        'ruff==0.8.0' \
+        'yamllint==1.35.1'
 WORKDIR /src
+# CI overrides with --user; declare non-root for Sonar docker:S6471.
+USER 65534:65534
 CMD ["/bin/bash"]

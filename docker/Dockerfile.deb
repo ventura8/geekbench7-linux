@@ -2,13 +2,24 @@
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates git \
-    build-essential debhelper dpkg-dev devscripts fakeroot lintian \
-    meson ninja-build python3 \
-    desktop-file-utils appstream \
-    file binutils \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        appstream \
+        binutils \
+        build-essential \
+        ca-certificates \
+        debhelper \
+        desktop-file-utils \
+        devscripts \
+        dpkg-dev \
+        fakeroot \
+        file \
+        git \
+        lintian \
+        meson \
+        ninja-build \
+        python3 \
     && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /src
+USER 65534:65534
 CMD ["./scripts/release-deb.sh"]

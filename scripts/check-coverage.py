@@ -144,6 +144,17 @@ def _measure_classes(
     return failed, total_covered, total_units, measured
 
 
+def _resolve_cli_path(path: Path, *allowed_roots: Path) -> Path:
+    """Refuse CLI paths that escape the repo or an explicit allowlisted root (e.g. /tmp)."""
+    resolved = path.expanduser().resolve()
+    for root in allowed_roots:
+        root_res = root.resolve()
+        if resolved == root_res or root_res in resolved.parents:
+            return resolved
+    print(f"error: refusing path outside allowed roots: {resolved}", file=sys.stderr)
+    raise SystemExit(2)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--xml", type=Path, default=DEFAULT_XML)
@@ -153,14 +164,17 @@ def main() -> int:
     parser.add_argument("--min-python-branch", type=float, default=90.0)
     args = parser.parse_args()
 
-    if not args.xml.is_file():
-        print(f"error: missing coverage xml: {args.xml}", file=sys.stderr)
+    # CI writes Cobertura under /scratch or /tmp when /src is mounted read-only.
+    xml_path = _resolve_cli_path(args.xml, ROOT, Path("/tmp"), Path("/scratch"))
+    props_path = _resolve_cli_path(args.properties, ROOT)
+    if not xml_path.is_file():
+        print(f"error: missing coverage xml: {xml_path}", file=sys.stderr)
         return 2
 
     floor = min(args.min, args.min_python_line, args.min_python_branch)
-    exclusions = _load_exclusions(args.properties)
+    exclusions = _load_exclusions(props_path)
     failed, total_covered, total_units, measured = _measure_classes(
-        ET.parse(args.xml).getroot(), exclusions, floor
+        ET.parse(xml_path).getroot(), exclusions, floor
     )
     if total_units == 0:
         print("error: no measurable Python files in coverage report", file=sys.stderr)

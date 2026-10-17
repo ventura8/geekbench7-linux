@@ -6,12 +6,18 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
+import urllib.error
 import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = ROOT / "src" / "geekbench7_linux" / "data" / "runtime-manifest.json"
 VERSION_RE = re.compile(r"Geekbench[- ](\d+\.\d+\.\d+)")
+
+
+def _version_key(version: str) -> tuple[int, ...]:
+    return tuple(int(part) for part in version.split("."))
 
 
 def fetch_latest() -> str:
@@ -22,9 +28,8 @@ def fetch_latest() -> str:
         body = resp.read().decode("utf-8", errors="replace")
     matches = VERSION_RE.findall(body)
     if not matches:
-        raise SystemExit("could not find Geekbench version on download page")
-    # Prefer the highest dotted version found.
-    return sorted(matches, key=lambda v: tuple(int(p) for p in v.split(".")))[-1]
+        raise RuntimeError("could not find Geekbench version on download page")
+    return max(matches, key=_version_key)
 
 
 def pinned_version() -> str:
@@ -46,11 +51,13 @@ def main() -> int:
         MANIFEST.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
         print(f"updated manifest version to {args.add} (TOFU hashes; fill after verified download)")
         return 0
-    current = pinned_version()
-    latest = fetch_latest()
-    newer = latest != current and tuple(int(p) for p in latest.split(".")) > tuple(
-        int(p) for p in current.split(".")
-    )
+    try:
+        current = pinned_version()
+        latest = fetch_latest()
+    except (OSError, urllib.error.URLError, json.JSONDecodeError, KeyError, RuntimeError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    newer = latest != current and _version_key(latest) > _version_key(current)
     if args.github_output:
         print(f"new={'true' if newer else 'false'}")
         print(f"version={latest}")

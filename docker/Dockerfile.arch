@@ -3,10 +3,16 @@ FROM archlinux:base-devel
 
 RUN pacman -Syu --noconfirm \
     && pacman -S --noconfirm --needed \
-    git python meson ninja \
-    desktop-file-utils appstream file binutils \
+        appstream \
+        binutils \
+        desktop-file-utils \
+        file \
+        git \
+        meson \
+        ninja \
+        python \
     && pacman -Scc --noconfirm \
     && useradd -m builder
-
 WORKDIR /src
+USER builder
 CMD ["./scripts/release-arch.sh"]
