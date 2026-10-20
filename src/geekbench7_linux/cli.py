@@ -59,6 +59,43 @@ def _refuse_root(args: argparse.Namespace) -> None:
         )
 
 
+# Flags consumed by the wrapper itself when they appear after ``run``.
+_RUN_WRAPPER_FLAGS = frozenset(
+    {
+        "-h",
+        "--help",
+        "--json",
+        "--allow-root",
+        "-v",
+        "--verbose",
+        "--accept-eula",
+    }
+)
+
+
+def _normalize_run_argv(args_list: list[str]) -> list[str]:
+    """Insert ``--`` so Geekbench options (e.g. ``--gpu``) are not eaten by argparse.
+
+    ``nargs=REMAINDER`` only gathers unknown options after an explicit ``--``.
+    Users expect ``geekbench7-linux run --gpu CUDA`` to work; rewrite to
+    ``run -- --gpu CUDA`` (keeping our own flags before the separator).
+    """
+    if not args_list or args_list[0] != "run" or "--" in args_list:
+        return args_list
+    out: list[str] = ["run"]
+    i = 1
+    while i < len(args_list):
+        arg = args_list[i]
+        if arg in _RUN_WRAPPER_FLAGS:
+            out.append(arg)
+            i += 1
+            continue
+        out.append("--")
+        out.extend(args_list[i:])
+        return out
+    return out
+
+
 def main(argv: list[str] | None = None, prog: str | None = None) -> int:
     """Entry point used by the launcher."""
     program = prog or PACKAGE
@@ -70,6 +107,7 @@ def main(argv: list[str] | None = None, prog: str | None = None) -> int:
         helpish = args_list and args_list[0] in {"-V", "--version", "-h", "--help"}
         if not helpish:
             args_list = ["run", "--", *args_list]
+    args_list = _normalize_run_argv(args_list)
     args = parser.parse_args(args_list)
     if not getattr(args, "command", None):
         parser.print_help()

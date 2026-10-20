@@ -1,7 +1,7 @@
 name: geekbench7-linux
 title: Geekbench 7 for Linux (unofficial)
 base: core24
-version: '1.0.0'
+version: '1.0.1'
 summary: Unofficial packaging for official Geekbench 7
 description: |
   Downloads and launches official Geekbench 7 from Primate Labs' CDN.
