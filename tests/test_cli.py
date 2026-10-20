@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from geekbench7_linux.cli import build_parser, main
+from geekbench7_linux.cli import _normalize_run_argv, build_parser, main
 from geekbench7_linux.credits import thank_you
 
 
@@ -27,3 +27,40 @@ def test_parser_has_commands() -> None:
     help_text = parser.format_help()
     assert "setup" in help_text
     assert "run" in help_text
+
+
+def test_normalize_run_inserts_separator_before_geekbench_flags() -> None:
+    assert _normalize_run_argv(["run", "--gpu", "CUDA"]) == ["run", "--", "--gpu", "CUDA"]
+    assert _normalize_run_argv(["run", "--accept-eula", "--gpu", "CUDA"]) == [
+        "run",
+        "--accept-eula",
+        "--",
+        "--gpu",
+        "CUDA",
+    ]
+    assert _normalize_run_argv(["run", "--", "--gpu", "CUDA"]) == ["run", "--", "--gpu", "CUDA"]
+    assert _normalize_run_argv(["run"]) == ["run"]
+    assert _normalize_run_argv(["--json", "run", "--gpu", "CUDA"]) == [
+        "--json",
+        "run",
+        "--",
+        "--gpu",
+        "CUDA",
+    ]
+    assert _normalize_run_argv(["run", "--gpu", "CUDA", "--"]) == [
+        "run",
+        "--",
+        "--gpu",
+        "CUDA",
+        "--",
+    ]
+
+
+def test_run_parses_gpu_without_explicit_separator() -> None:
+    args = build_parser().parse_args(_normalize_run_argv(["run", "--gpu", "CUDA"]))
+    assert args.command == "run"
+    assert args.geekbench_args == ["--", "--gpu", "CUDA"]
+    args_json = build_parser().parse_args(_normalize_run_argv(["--json", "run", "--sysinfo"]))
+    assert args_json.command == "run"
+    assert args_json.json is True
+    assert args_json.geekbench_args == ["--", "--sysinfo"]

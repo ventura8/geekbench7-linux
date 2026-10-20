@@ -11,8 +11,15 @@ from ..install import find_geekbench_binary, setup_geekbench
 
 
 def register(subparsers: argparse._SubParsersAction) -> None:
-    parser = subparsers.add_parser("run", help="run official geekbench7 (passthrough args after --)")
-    parser.add_argument("geekbench_args", nargs=argparse.REMAINDER, help="args passed to geekbench7")
+    parser = subparsers.add_parser(
+        "run",
+        help="run official geekbench7 (passthrough: run --gpu CUDA, or run -- …)",
+    )
+    parser.add_argument(
+        "geekbench_args",
+        nargs=argparse.REMAINDER,
+        help="args passed to geekbench7 (use -- before options if needed)",
+    )
     parser.add_argument("--accept-eula", action="store_true", help="accept consent if setup is needed")
     parser.set_defaults(_handler=run)
 

@@ -59,6 +59,52 @@ def _refuse_root(args: argparse.Namespace) -> None:
         )
 
 
+# Flags consumed by the wrapper itself around the ``run`` subcommand.
+_RUN_WRAPPER_FLAGS = frozenset(
+    {
+        "-h",
+        "--help",
+        "--json",
+        "--allow-root",
+        "-v",
+        "--verbose",
+        "--accept-eula",
+    }
+)
+
+
+def _normalize_run_argv(args_list: list[str]) -> list[str]:
+    """Insert ``--`` so Geekbench options (e.g. ``--gpu``) are not eaten by argparse.
+
+    ``nargs=REMAINDER`` only gathers unknown options after an explicit ``--``.
+    Users expect ``geekbench7-linux run --gpu CUDA`` (and
+    ``geekbench7-linux --json run --gpu CUDA``) to work; rewrite so a separator
+    appears before the first Geekbench option while keeping wrapper flags before it.
+    """
+    if not args_list or "run" not in args_list:
+        return args_list
+    run_at = args_list.index("run")
+    # Only treat leading wrapper globals before ``run`` (e.g. ``--json run …``).
+    if any(arg not in _RUN_WRAPPER_FLAGS for arg in args_list[:run_at]):
+        return args_list
+    after = args_list[run_at + 1 :]
+    # Separator already before the first Geekbench option — leave alone.
+    if after and after[0] == "--":
+        return args_list
+    out: list[str] = [*args_list[: run_at + 1]]
+    i = 0
+    while i < len(after):
+        arg = after[i]
+        if arg in _RUN_WRAPPER_FLAGS:
+            out.append(arg)
+            i += 1
+            continue
+        out.append("--")
+        out.extend(after[i:])
+        return out
+    return out
+
+
 def main(argv: list[str] | None = None, prog: str | None = None) -> int:
     """Entry point used by the launcher."""
     program = prog or PACKAGE
@@ -70,6 +116,7 @@ def main(argv: list[str] | None = None, prog: str | None = None) -> int:
         helpish = args_list and args_list[0] in {"-V", "--version", "-h", "--help"}
         if not helpish:
             args_list = ["run", "--", *args_list]
+    args_list = _normalize_run_argv(args_list)
     args = parser.parse_args(args_list)
     if not getattr(args, "command", None):
         parser.print_help()
