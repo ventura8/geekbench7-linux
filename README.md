@@ -102,6 +102,7 @@ geekbench7-linux run --gpu-list
 geekbench7-linux run --gpu CUDA --gpu-platform-id 0 --gpu-device-id 0
 
 # unlock with a purchased license (EMAIL and KEY from Primate Labs)
+# Warning: keys on the command line can land in shell history and process lists.
 geekbench7-linux run --unlock 'you@example.com' 'YOUR-KEY'
 
 # see every flag Geekbench supports
@@ -168,6 +169,8 @@ Do not quote the whole flag, and do not type the help brackets. Use
 **Need a license**  
 Buy at https://www.primatelabs.com/store/v7/ then
 `geekbench7-linux run --unlock 'EMAIL' 'KEY'`.
+Prefer a private shell session; command-line keys can appear in history and
+`ps` output.
 
 **Wrong architecture**  
 `geekbench7-linux setup --accept-eula --arch arm64` (or `amd64` / `riscv64`).

@@ -59,7 +59,7 @@ def _refuse_root(args: argparse.Namespace) -> None:
         )
 
 
-# Flags consumed by the wrapper itself when they appear after ``run``.
+# Flags consumed by the wrapper itself around the ``run`` subcommand.
 _RUN_WRAPPER_FLAGS = frozenset(
     {
         "-h",
@@ -77,21 +77,30 @@ def _normalize_run_argv(args_list: list[str]) -> list[str]:
     """Insert ``--`` so Geekbench options (e.g. ``--gpu``) are not eaten by argparse.
 
     ``nargs=REMAINDER`` only gathers unknown options after an explicit ``--``.
-    Users expect ``geekbench7-linux run --gpu CUDA`` to work; rewrite to
-    ``run -- --gpu CUDA`` (keeping our own flags before the separator).
+    Users expect ``geekbench7-linux run --gpu CUDA`` (and
+    ``geekbench7-linux --json run --gpu CUDA``) to work; rewrite so a separator
+    appears before the first Geekbench option while keeping wrapper flags before it.
     """
-    if not args_list or args_list[0] != "run" or "--" in args_list:
+    if not args_list or "run" not in args_list:
         return args_list
-    out: list[str] = ["run"]
-    i = 1
-    while i < len(args_list):
-        arg = args_list[i]
+    run_at = args_list.index("run")
+    # Only treat leading wrapper globals before ``run`` (e.g. ``--json run …``).
+    if any(arg not in _RUN_WRAPPER_FLAGS for arg in args_list[:run_at]):
+        return args_list
+    after = args_list[run_at + 1 :]
+    # Separator already before the first Geekbench option — leave alone.
+    if after and after[0] == "--":
+        return args_list
+    out: list[str] = [*args_list[: run_at + 1]]
+    i = 0
+    while i < len(after):
+        arg = after[i]
         if arg in _RUN_WRAPPER_FLAGS:
             out.append(arg)
             i += 1
             continue
         out.append("--")
-        out.extend(args_list[i:])
+        out.extend(after[i:])
         return out
     return out
 
