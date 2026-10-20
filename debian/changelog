@@ -1,6 +1,7 @@
 geekbench7-linux (1.0.1) unstable; urgency=medium
 
   * Fix run passthrough so Geekbench flags like --gpu work without a leading --.
+  * Expand README with install, GPU, unlock, and troubleshooting examples.
   * SonarCloud coverage path mapping and CI analysis hardening (from 1.0.0 follow-ups).
 
  -- Sergiu Alexandrescu <alexandrescu.sergiu@gmail.com>  Tue, 20 Oct 2026 14:26:35 +0000
