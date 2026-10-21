@@ -1,3 +1,9 @@
+geekbench7-linux (1.0.3) unstable; urgency=medium
+
+  * Pass geekbench7 --help / -h through to official Geekbench (not a wrapper tip).
+
+ -- Sergiu Alexandrescu <alexandrescu.sergiu@gmail.com>  Wed, 21 Oct 2026 17:30:00 +0000
+
 geekbench7-linux (1.0.2) unstable; urgency=medium
 
   * geekbench7 is the default benchmark entry; geekbench7-linux is wrapper-only.
