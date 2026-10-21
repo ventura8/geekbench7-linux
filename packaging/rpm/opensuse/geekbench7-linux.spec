@@ -50,7 +50,9 @@ ARM64 uses the official Linux/AArch64 preview from https://www.geekbench.com/pre
 %{_datadir}/bash-completion/completions/geekbench7-linux
 %{_datadir}/bash-completion/completions/geekbench7
 %{_datadir}/zsh/site-functions/_geekbench7-linux
+%{_datadir}/zsh/site-functions/_geekbench7
 %{_datadir}/fish/vendor_completions.d/geekbench7-linux.fish
+%{_datadir}/fish/vendor_completions.d/geekbench7.fish
 
 %changelog
 * Sat Oct 17 2026 Sergiu Alexandrescu <alexandrescu.sergiu@gmail.com> - 1.0.0-1
