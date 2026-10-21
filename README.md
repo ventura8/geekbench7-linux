@@ -131,11 +131,11 @@ geekbench7 --unlock 'you@example.com' 'YOUR-KEY'
 # first run + accept consent in one step
 geekbench7 --accept-eula
 
-# Geekbench’s own help (after the separator)
-geekbench7 -- --help
+# Geekbench’s own help
+geekbench7 --help
 ```
 
-`geekbench7 -h` shows a short wrapper tip (`wrapper` / `geekbench7-linux`). You can still
+Wrapper help is `geekbench7-linux --help` or `geekbench7 wrapper --help`. You can still
 insert an explicit `--` before Geekbench options:
 
 ```bash

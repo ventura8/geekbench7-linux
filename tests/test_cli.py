@@ -60,8 +60,26 @@ def test_geekbench7_linux_rejects_run() -> None:
     assert exc.value.code not in (0, None)
 
 
-def test_geekbench7_help_tip(capsys) -> None:
-    assert main(["--help"], prog="geekbench7") == 0
-    out = capsys.readouterr().out
-    assert "wrapper" in out
-    assert "GEEKBENCH" in out or "passthrough" in out.lower() or "Geekbench" in out
+def test_geekbench7_help_passthrough(monkeypatch, xdg) -> None:
+    """``geekbench7 --help`` must reach the official binary, not a wrapper tip."""
+    from pathlib import Path
+
+    from geekbench7_linux.commands import run as run_cmd
+    from geekbench7_linux.paths import Paths
+
+    paths = Paths.from_env()
+    paths.geekbench_dir.mkdir(parents=True, exist_ok=True)
+    binary = paths.geekbench_dir / "geekbench7"
+    binary.write_text("#!/bin/sh\n", encoding="utf-8")
+    binary.chmod(0o755)
+    seen: list[list[str]] = []
+
+    def fake_execv(path: str, args: list[str]) -> None:
+        seen.append(list(args))
+        raise SystemExit(0)
+
+    monkeypatch.setattr(run_cmd.os, "execv", fake_execv)
+    with pytest.raises(SystemExit):
+        main(["--help"], prog="geekbench7")
+    assert seen and "--help" in seen[0]
+    assert Path(seen[0][0]).name == "geekbench7"

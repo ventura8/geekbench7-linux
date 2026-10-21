@@ -16,10 +16,9 @@ from .errors import Geekbench7LinuxError, UnsupportedEnv
 from .version import get_version
 
 # Flags consumed by the wrapper itself (not passed through to Geekbench).
+# Note: -h/--help are *not* here so ``geekbench7 --help`` reaches Geekbench.
 _WRAPPER_FLAGS = frozenset(
     {
-        "-h",
-        "--help",
         "--json",
         "--allow-root",
         "-v",
@@ -134,20 +133,7 @@ def _main_benchmark(argv: list[str], prog: str) -> int:
     if rest and rest[0] == "wrapper":
         return _main_wrapper([*flags, *rest[1:]], prog=f"{Path(prog).name} wrapper")
 
-    # ``geekbench7 -h`` / ``--help`` with nothing else → wrapper-oriented help.
-    if not rest and any(f in {"-h", "--help"} for f in flags):
-        print(
-            f"usage: {Path(prog).name} [GEEKBENCH_OPTIONS]\n"
-            f"       {Path(prog).name} wrapper COMMAND …\n"
-            f"       {Path(prog).name} --accept-eula\n\n"
-            "Default: run official Geekbench 7 (passthrough).\n"
-            "Use 'wrapper' for setup/update/doctor/about/uninstall/desktop/version.\n"
-            f"See also: {PACKAGE} --help\n",
-            end="",
-        )
-        return 0
-
-    # Default: passthrough to official Geekbench.
+    # Default: passthrough to official Geekbench (including ``--help`` / ``-h``).
     accept_eula = "--accept-eula" in flags
     allow_root = "--allow-root" in flags
     try:
