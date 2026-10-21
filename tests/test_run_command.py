@@ -39,3 +39,14 @@ def test_run_execv(xdg: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         run_cmd.run(ctx)
     assert called
     assert "--help" in called[0]
+
+
+def test_run_execv_must_not_return(xdg: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    paths = Paths.from_env()
+    paths.geekbench_dir.mkdir(parents=True, exist_ok=True)
+    binary = paths.geekbench_dir / "geekbench7"
+    binary.write_text("#!/bin/sh\n", encoding="utf-8")
+    binary.chmod(0o755)
+    monkeypatch.setattr(run_cmd.os, "execv", lambda *_a, **_k: None)
+    with pytest.raises(RuntimeError, match="execv returned"):
+        run_cmd.run_with_args(geekbench_args=["--sysinfo"], paths=paths)

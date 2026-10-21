@@ -89,11 +89,15 @@ install_man('data/man/geekbench7-linux.1')
 
 gb_bash_dir = gb_datadir / 'bash-completion' / 'completions'
 install_data('data/completions/geekbench7-linux.bash', rename: 'geekbench7-linux', install_dir: gb_bash_dir)
+install_data(
+  'data/completions/geekbench7-linux.bash',
+  rename: 'geekbench7',
+  install_dir: gb_bash_dir,
+)
 install_data('data/completions/_geekbench7-linux', install_dir: gb_datadir / 'zsh' / 'site-functions')
+install_data('data/completions/_geekbench7', install_dir: gb_datadir / 'zsh' / 'site-functions')
 install_data('data/completions/geekbench7-linux.fish', install_dir: gb_datadir / 'fish' / 'vendor_completions.d')
-if get_option('geekbench_alias')
-  install_symlink('geekbench7', pointing_to: 'geekbench7-linux', install_dir: gb_bash_dir)
-endif
+install_data('data/completions/geekbench7.fish', install_dir: gb_datadir / 'fish' / 'vendor_completions.d')
 
 test('gen-data-check', gb_python, args: [gb_gen, 'check'], suite: 'data')
 if get_option('desktop')

@@ -19,10 +19,11 @@
     <category>Monitor</category>
   </categories>
   <provides>
+    <binary>geekbench7</binary>
     <binary>geekbench7-linux</binary>
   </provides>
   <content_rating type="oars-1.1"/>
   <releases>
-    <release version="@VERSION@" date="2026-10-16"/>
+    <release version="@VERSION@" date="2026-10-21"/>
   </releases>
 </component>

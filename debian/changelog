@@ -1,3 +1,12 @@
+geekbench7-linux (1.0.2) unstable; urgency=medium
+
+  * geekbench7 is the default benchmark entry; geekbench7-linux is wrapper-only.
+  * Add geekbench7 wrapper … for management commands.
+  * README: badges, one-line installer, clearer install docs.
+  * Bump CI deps (ruff, pytest, yamllint, GitHub Actions pins).
+
+ -- Sergiu Alexandrescu <alexandrescu.sergiu@gmail.com>  Wed, 21 Oct 2026 17:00:00 +0000
+
 geekbench7-linux (1.0.1) unstable; urgency=medium
 
   * Fix run passthrough so Geekbench flags like --gpu work without a leading --.

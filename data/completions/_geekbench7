@@ -1,0 +1,11 @@
+#compdef geekbench7
+
+_arguments \
+  '1:command:(wrapper)' \
+  '*::arg:->args'
+
+case $words[1] in
+  wrapper)
+    _arguments '1:command:(setup update doctor about uninstall desktop version)'
+    ;;
+esac

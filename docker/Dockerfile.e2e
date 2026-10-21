@@ -9,7 +9,7 @@ RUN apt-get update \
         python3-pip \
         tar \
     && rm -rf /var/lib/apt/lists/* \
-    && pip3 install --break-system-packages --only-binary=:all: 'pytest==8.3.3'
+    && pip3 install --break-system-packages --only-binary=:all: 'pytest==9.1.1'
 WORKDIR /src
 USER 65534:65534
 CMD ["/bin/bash"]
