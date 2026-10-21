@@ -135,12 +135,7 @@ geekbench7 --accept-eula
 geekbench7 --help
 ```
 
-Wrapper help is `geekbench7-linux --help` or `geekbench7 wrapper --help`. You can still
-insert an explicit `--` before Geekbench options:
-
-```bash
-geekbench7 -- --gpu CUDA
-```
+Wrapper help: `geekbench7-linux --help` or `geekbench7 wrapper --help`.
 
 ## Wrapper commands (`geekbench7-linux`)
 
