@@ -2,7 +2,7 @@
 Type=Application
 Name=@APP_NAME@
 Comment=@COMMENT@
-Exec=@EXEC@ run
+Exec=@EXEC@
 TryExec=@TRYEXEC@
 Icon=@APP_ID@
 Categories=System;Monitor;
@@ -12,8 +12,8 @@ Actions=doctor;about;
 
 [Desktop Action doctor]
 Name=Doctor
-Exec=@EXEC@ doctor
+Exec=@WRAPPER@ doctor
 
 [Desktop Action about]
 Name=About
-Exec=@EXEC@ about
+Exec=@WRAPPER@ about

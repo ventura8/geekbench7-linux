@@ -92,9 +92,9 @@ def test_run_triggers_setup(xdg: Path, monkeypatch, sample_manifest: Path) -> No
 
 
 def test_cli_alias_geekbench7(monkeypatch, xdg: Path) -> None:
-    assert main(["version"], prog="/usr/bin/geekbench7") == 0
-    # alias with flag-only argv prepends run; without eula/setup it errors (no network)
-    code = main(["--json"], prog="geekbench7")
+    assert main(["wrapper", "version"], prog="/usr/bin/geekbench7") == 0
+    # geekbench7 without install tries setup/run and fails without eula/network
+    code = main(["--sysinfo"], prog="geekbench7")
     assert code != 0
 
 

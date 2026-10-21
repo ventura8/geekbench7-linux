@@ -20,3 +20,17 @@ def test_allow_root(monkeypatch, capsys) -> None:
 
 def test_no_command_prints_help(capsys) -> None:
     assert main([]) == 2
+
+
+def test_geekbench7_wrapper_with_json(capsys) -> None:
+    assert main(["--json", "wrapper", "version"], prog="geekbench7") == 0
+    out = capsys.readouterr().out
+    assert out.strip()
+
+
+def test_dispatch_without_handler() -> None:
+    import argparse
+
+    from geekbench7_linux.cli import _dispatch
+
+    assert _dispatch(argparse.Namespace(allow_root=True, _handler=None)) == 2

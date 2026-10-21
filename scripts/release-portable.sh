@@ -63,7 +63,7 @@ app-id: ${app_id}
 runtime: org.freedesktop.Platform
 runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
-command: geekbench7-linux
+command: geekbench7
 finish-args:
   - --share=network
   - --filesystem=xdg-data

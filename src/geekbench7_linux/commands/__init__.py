@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-COMMANDS: list[str] = [
+# Management commands for geekbench7-linux and ``geekbench7 wrapper …``.
+WRAPPER_COMMANDS: list[str] = [
     "setup",
-    "run",
     "update",
     "doctor",
     "about",
@@ -12,3 +12,6 @@ COMMANDS: list[str] = [
     "desktop",
     "version",
 ]
+
+# Backwards-compatible alias used by older imports/tests.
+COMMANDS: list[str] = list(WRAPPER_COMMANDS)

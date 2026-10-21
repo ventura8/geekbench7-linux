@@ -1,14 +1,14 @@
-#compdef geekbench7-linux geekbench7
+#compdef geekbench7-linux
 
 _arguments \
-  '1:command:(setup run update doctor about uninstall desktop version)' \
+  '1:command:(setup update doctor about uninstall desktop version)' \
   '*::arg:->args'
 
 case $words[1] in
   desktop)
     _arguments '1:action:(install remove)'
     ;;
-  setup|run)
-    _arguments '--accept-eula' '--json' '--allow-root'
+  setup)
+    _arguments '--accept-eula' '--arch' '--json' '--allow-root'
     ;;
 esac

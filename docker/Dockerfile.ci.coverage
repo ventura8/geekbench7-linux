@@ -9,8 +9,8 @@ RUN apt-get update \
         python3-venv \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install --break-system-packages --only-binary=:all: \
-        'pytest==8.3.3' \
-        'pytest-cov==5.0.0'
+        'pytest==9.1.1' \
+        'pytest-cov==7.1.0'
 WORKDIR /src
 USER 65534:65534
 CMD ["/bin/bash"]
